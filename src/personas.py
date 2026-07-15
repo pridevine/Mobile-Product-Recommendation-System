@@ -1,7 +1,7 @@
 """4 personas + free-text preference extraction (Step 2 / Step 2b of the plan).
 
 Personas map ~1:1 onto the official target_segment categories:
-Priya->photography, Arjun->gaming, Neha->business, Ravi->budget.
+Riya->photography, Kabir->gaming, Ananya->business, Mukesh->budget.
 """
 
 from __future__ import annotations
@@ -11,37 +11,72 @@ import re
 from src import llm_client, security
 
 PERSONAS = {
-    "priya": {
-        "name": "Priya", "avatar": "P", "age": 24,
-        "need": "Wedding photographer — camera & battery first",
-        "budget_min": 45000, "budget_max": 70000,
-        "weights": {"camera": 0.5, "performance": 0.1, "battery": 0.2, "value": 0.2},
+    "riya": {
+        "name": "Riya Sharma",
+        "avatar": "R",
+        "age": 26,
+        "need": "Travel content creator who captures photos and Instagram reels. Prioritizes camera quality and dependable battery life.",
+        "budget_min": 45000,
+        "budget_max": 70000,
+        "weights": {
+            "camera": 0.5,
+            "performance": 0.1,
+            "battery": 0.2,
+            "value": 0.2,
+        },
     },
-    "arjun": {
-        "name": "Arjun", "avatar": "A", "age": 21,
-        "need": "Engineering student, BGMI player",
-        "budget_min": 20000, "budget_max": 35000,
-        "weights": {"camera": 0.1, "performance": 0.5, "battery": 0.3, "value": 0.1},
+
+    "kabir": {
+        "name": "Kabir Mehta",
+        "avatar": "K",
+        "age": 22,
+        "need": "Computer Science student and mobile gaming enthusiast. Plays BGMI, COD Mobile and multitasks between studies and entertainment.",
+        "budget_min": 22000,
+        "budget_max": 38000,
+        "weights": {
+            "camera": 0.1,
+            "performance": 0.5,
+            "battery": 0.3,
+            "value": 0.1,
+        },
     },
-    "neha": {
-        "name": "Neha", "avatar": "N", "age": 29,
-        "need": "Consultant, travels weekly",
-        "budget_min": 55000, "budget_max": 100000,
-        "weights": {"camera": 0.2, "performance": 0.2, "battery": 0.4, "value": 0.2},
+
+    "ananya": {
+        "name": "Ananya Rao",
+        "avatar": "A",
+        "age": 31,
+        "need": "Management consultant who frequently travels for client meetings. Needs reliable battery life, smooth multitasking and a premium experience.",
+        "budget_min": 55000,
+        "budget_max": 95000,
+        "weights": {
+            "camera": 0.2,
+            "performance": 0.2,
+            "battery": 0.4,
+            "value": 0.2,
+        },
     },
-    "ravi": {
-        "name": "Mr. Ravi", "avatar": "R", "age": 48,
-        "need": "Small business owner, keeps it simple",
-        "budget_min": 8000, "budget_max": 20000,
-        "weights": {"camera": 0.1, "performance": 0.1, "battery": 0.3, "value": 0.5},
+
+    "mukesh": {
+        "name": "Mukesh Patel",
+        "avatar": "M",
+        "age": 47,
+        "need": "Owns a neighbourhood grocery store. Uses WhatsApp Business, UPI payments, YouTube and video calls. Wants maximum value for money and long battery life.",
+        "budget_min": 12000,
+        "budget_max": 22000,
+        "weights": {
+            "camera": 0.1,
+            "performance": 0.1,
+            "battery": 0.3,
+            "value": 0.5,
+        },
     },
 }
 
 _KEYWORD_BUCKETS = {
-    "performance": r"bgmi|pubg|gam(e|ing)|fps|fortnite",
-    "camera": r"camera|photo|wedding|shoot|photograph",
-    "battery": r"travel|consult|client|business trip|meeting|battery",
-    "value": r"simple|whatsapp|upi|affordable|small business|budget|calls",
+    "performance": r"bgmi|pubg|gaming|gamer|fps|fortnite|cod|call of duty|genshin|esports",
+    "camera": r"camera|photo|photography|reels|instagram|content creator|shoot|video|vlog",
+    "battery": r"travel|travelling|consultant|meeting|office|battery|remote work|work",
+    "value": r"budget|value|upi|whatsapp|shop|business|affordable|daily use|student",
 }
 
 _rate_limiter = security.RateLimiter()
