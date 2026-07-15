@@ -41,6 +41,89 @@ def _font_base64() -> str:
     return base64.b64encode(_FONT_PATH.read_bytes()).decode("ascii")
 
 
+# --- Phone-backside illustrations -----------------------------------------
+# Original stylized SVGs (no real product photos — those are proprietary),
+# drawn from reference product shots so each phone family's camera layout is
+# accurate:
+#   floating — S24/S24+/FE + modern A/M series: 3 separate lenses, no housing
+#   ultra    — S24 Ultra: separated multi-lens array
+#   island   — A36: vertical black pill housing the 3 lenses (its own look)
+#   dual     — A06: entry-level two-lens back
+#   flip     — Z Flip6: fold line + cover display + dual cameras
+
+def _lens(cx: float, cy: float, r: float) -> str:
+    # Brighter metallic ring so the lenses read against the dark phone body
+    # at small render sizes (the earlier dark-on-dark version was invisible).
+    return (
+        f'<circle cx="{cx}" cy="{cy}" r="{r + 0.5:.1f}" fill="none" stroke="rgba(150,160,200,0.35)" stroke-width="1"/>'
+        f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#0f1119" stroke="rgba(216,222,245,0.7)" stroke-width="1.3"/>'
+        f'<circle cx="{cx}" cy="{cy}" r="{r * 0.48:.1f}" fill="#05060b"/>'
+        f'<circle cx="{cx - r * 0.32:.1f}" cy="{cy - r * 0.32:.1f}" r="{r * 0.2:.1f}" fill="rgba(190,200,255,0.85)"/>'
+    )
+
+
+def _flash(cx: float, cy: float) -> str:
+    return f'<circle cx="{cx}" cy="{cy}" r="1.6" fill="#e9e3b8"/>'
+
+
+def _phone_family(model_name: str) -> str:
+    m = model_name.lower()
+    if "flip" in m or "fold" in m:
+        return "flip"
+    if "ultra" in m:
+        return "ultra"
+    if "a06" in m or "a05" in m:
+        return "dual"
+    if "a36" in m:
+        return "island"
+    return "floating"  # S24/S24+/FE + modern A/M series all share this look
+
+
+def _camera_group(family: str) -> str:
+    if family == "ultra":
+        # Left column of three big lenses + one offset right + laser-AF sensor.
+        return (
+            _lens(19, 16, 5) + _lens(19, 29, 5) + _lens(19, 42, 5)
+            + _lens(31, 21, 3.6) + _flash(31, 32)
+        )
+    if family == "island":
+        # A36 — vertical black pill housing the three lenses; flash outside, top-right.
+        return (
+            '<rect x="13" y="10" width="16" height="40" rx="8" fill="#15161e" '
+            'stroke="rgba(255,255,255,0.10)" stroke-width="1"/>'
+            + _lens(21, 19, 3.9) + _lens(21, 30, 3.9) + _lens(21, 41, 3.9)
+            + _flash(33, 14)
+        )
+    if family == "dual":
+        # A06 — simple two-lens entry back, no housing.
+        return _lens(20, 19, 4.4) + _lens(20, 32, 4.4) + _flash(20, 43)
+    if family == "flip":
+        return (
+            '<line x1="7" y1="64" x2="57" y2="64" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>'
+            '<rect x="29" y="9" width="23" height="17" rx="4" fill="#13151e" stroke="rgba(255,255,255,0.08)"/>'
+            + _lens(18, 15, 4) + _lens(18, 27, 4)
+        )
+    # floating — three separate lenses top-left, flash right of the top lens.
+    return (
+        _lens(20, 18, 4.6) + _lens(20, 31, 4.6) + _lens(20, 44, 4.6)
+        + _flash(31, 18)
+    )
+
+
+def phone_svg(model_name: str) -> str:
+    """Returns an inline SVG of a phone backside, styled per phone family."""
+    camera = _camera_group(_phone_family(model_name))
+    return (
+        '<svg viewBox="0 0 64 128" width="46" height="92" xmlns="http://www.w3.org/2000/svg" '
+        'style="display:block;position:relative;z-index:1;filter:drop-shadow(0 14px 22px rgba(0,0,0,0.5));">'
+        '<rect x="7" y="2" width="50" height="124" rx="15" fill="#2c2f3e" '
+        'stroke="rgba(255,255,255,0.13)" stroke-width="1"/>'
+        '<rect x="10" y="5" width="44" height="56" rx="12" fill="rgba(255,255,255,0.035)"/>'
+        f'{camera}'
+        '</svg>'
+    )
+
+
 def build_theme_css() -> str:
     """Returns the full <style> block as a string (also usable standalone/for tests)."""
     return f"""
@@ -147,12 +230,13 @@ def build_theme_css() -> str:
 .gm-card.gm-best {{ border-color: transparent; box-shadow: 0 0 0 1.5px rgba(188,195,255,0.4), 0 0 40px rgba(188,195,255,0.16); }}
 .gm-card.gm-best:hover {{ box-shadow: 0 0 0 1.5px rgba(188,195,255,0.55), 0 0 56px rgba(188,195,255,0.24); }}
 .gm-ghost-rank {{
-  position: absolute; top: 58px; left: 14px; font-size: 56px; font-weight: 700; line-height: 1;
+  position: absolute; top: 8px; left: 16px; font-size: 72px; font-weight: 700; line-height: 1;
   color: rgba(255,255,255,0.05); user-select: none; z-index: 0;
 }}
-.gm-card.gm-best .gm-ghost-rank {{ color: rgba(188,195,255,0.08); }}
+.gm-card.gm-best .gm-ghost-rank {{ color: rgba(188,195,255,0.09); }}
 
-.gm-card-top {{ display: flex; justify-content: space-between; align-items: flex-start; z-index: 1; margin-bottom: 18px; }}
+/* Push the chip row right so it clears the ghost rank number on the left. */
+.gm-card-top {{ display: flex; justify-content: space-between; align-items: flex-start; z-index: 1; margin-bottom: 18px; padding-left: 46px; }}
 .gm-tag-chip {{
   display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600;
   letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border-radius: var(--gm-radius-full);
