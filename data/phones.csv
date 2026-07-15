@@ -1,0 +1,16 @@
+model_name,price_inr,ram_gb,storage_gb,camera_mp,battery_mah,screen_size_inch,target_segment
+Galaxy A06,9999,4,64,50,5000,6.7,budget
+Galaxy A15 5G,17999,6,128,50,5000,6.5,budget
+Galaxy A16 5G,19999,8,128,50,5000,6.7,budget
+Galaxy M15 5G,15999,6,128,50,6000,6.5,budget
+Galaxy A25 5G,26999,8,128,50,5000,6.5,gaming
+Galaxy A35 5G,30999,8,256,50,5000,6.6,photography
+Galaxy A36 5G,34999,8,256,50,5000,6.7,business
+Galaxy A55 5G,42999,12,256,50,5000,6.6,photography
+Galaxy M55 5G,29999,12,256,50,5000,6.7,gaming
+Galaxy S23 FE,44999,8,256,50,4500,6.4,photography
+Galaxy S24 FE,59999,8,256,50,4700,6.7,gaming
+Galaxy S24,74999,8,256,50,4000,6.2,business
+Galaxy S24+,99999,12,256,50,4900,6.7,business
+Galaxy S24 Ultra,129999,12,512,200,5000,6.8,photography
+Galaxy Z Flip6,109999,12,256,50,4000,6.7,business
