@@ -144,8 +144,11 @@ def build_theme_css() -> str:
 @keyframes gm-rise {{ to {{ opacity: 1; transform: translateY(0); }} }}
 .gm-card.gm-best {{ border-color: transparent; box-shadow: 0 0 0 1.5px rgba(188,195,255,0.4), 0 0 40px rgba(188,195,255,0.16); }}
 .gm-card.gm-best:hover {{ box-shadow: 0 0 0 1.5px rgba(188,195,255,0.55), 0 0 56px rgba(188,195,255,0.24); }}
-.gm-ghost-rank {{ position: absolute; top: 0; left: 16px; font-size: 72px; font-weight: 700; line-height: 1; color: rgba(255,255,255,0.05); user-select: none; }}
-.gm-card.gm-best .gm-ghost-rank {{ color: rgba(188,195,255,0.1); }}
+.gm-ghost-rank {{
+  position: absolute; top: 58px; left: 14px; font-size: 56px; font-weight: 700; line-height: 1;
+  color: rgba(255,255,255,0.05); user-select: none; z-index: 0;
+}}
+.gm-card.gm-best .gm-ghost-rank {{ color: rgba(188,195,255,0.08); }}
 
 .gm-card-top {{ display: flex; justify-content: space-between; align-items: flex-start; z-index: 1; margin-bottom: 18px; }}
 .gm-tag-chip {{
