@@ -1,0 +1,14 @@
+name: galaxymatch
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pandas
+  - numpy
+  - matplotlib
+  - scikit-learn
+  - jupyterlab
+  - ipywidgets
+  - python-dotenv
+  - requests
+  - pip
