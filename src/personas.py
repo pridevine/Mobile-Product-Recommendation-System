@@ -15,25 +15,25 @@ PERSONAS = {
         "name": "Priya", "avatar": "P", "age": 24,
         "need": "Wedding photographer — camera & battery first",
         "budget_min": 45000, "budget_max": 70000,
-        "weights": {"camera": 0.5, "performance": 0.1, "battery": 0.2, "value": 0.2},
+        "weights": {"camera": 0.4, "performance": 0.1, "battery": 0.15, "display": 0.2, "value": 0.15},
     },
     "arjun": {
         "name": "Arjun", "avatar": "A", "age": 21,
         "need": "Engineering student, BGMI player",
         "budget_min": 20000, "budget_max": 35000,
-        "weights": {"camera": 0.1, "performance": 0.5, "battery": 0.3, "value": 0.1},
+        "weights": {"camera": 0.05, "performance": 0.4, "battery": 0.25, "display": 0.2, "value": 0.1},
     },
     "neha": {
         "name": "Neha", "avatar": "N", "age": 29,
         "need": "Consultant, travels weekly",
         "budget_min": 55000, "budget_max": 100000,
-        "weights": {"camera": 0.2, "performance": 0.2, "battery": 0.4, "value": 0.2},
+        "weights": {"camera": 0.15, "performance": 0.15, "battery": 0.35, "display": 0.2, "value": 0.15},
     },
     "ravi": {
         "name": "Mr. Ravi", "avatar": "R", "age": 48,
         "need": "Small business owner, keeps it simple",
         "budget_min": 8000, "budget_max": 20000,
-        "weights": {"camera": 0.1, "performance": 0.1, "battery": 0.3, "value": 0.5},
+        "weights": {"camera": 0.05, "performance": 0.05, "battery": 0.3, "display": 0.1, "value": 0.5},
     },
 }
 
@@ -41,6 +41,7 @@ _KEYWORD_BUCKETS = {
     "performance": r"bgmi|pubg|gam(e|ing)|fps|fortnite",
     "camera": r"camera|photo|wedding|shoot|photograph",
     "battery": r"travel|consult|client|business trip|meeting|battery",
+    "display": r"screen|display|amoled|refresh rate|watch(ing)? (video|movie)|streaming",
     "value": r"simple|whatsapp|upi|affordable|small business|budget|calls",
 }
 
@@ -54,10 +55,10 @@ def _extract_rule_based(description: str) -> dict:
     budget_min = security.clamp_budget(budget * 0.7)
     budget_max = security.clamp_budget(budget * 1.15)
 
-    weights = {"camera": 0.2, "performance": 0.2, "battery": 0.3, "value": 0.3}
+    weights = {"camera": 0.15, "performance": 0.2, "battery": 0.25, "display": 0.15, "value": 0.25}
     for dimension, pattern in _KEYWORD_BUCKETS.items():
         if re.search(pattern, text):
-            weights = {k: (0.5 if k == dimension else 0.5 / 3) for k in weights}
+            weights = {k: (0.5 if k == dimension else 0.5 / 4) for k in weights}
             break
 
     return {"weights": weights, "budget_min": budget_min, "budget_max": budget_max}
@@ -74,7 +75,7 @@ def call_llm_extract(description: str) -> dict | None:
         "You are a Samsung shopping assistant. A customer described themselves as: "
         f'"{description}"\n\n'
         "Return ONLY a JSON object with this exact shape, weights summing to 1.0:\n"
-        '{"weights": {"camera": 0.0, "performance": 0.0, "battery": 0.0, "value": 0.0}, '
+        '{"weights": {"camera": 0.0, "performance": 0.0, "battery": 0.0, "display": 0.0, "value": 0.0}, '
         '"budget_min": 0, "budget_max": 0}'
     )
     result = llm_client.call_local_llm(prompt, expect_json=True)

@@ -15,6 +15,7 @@ def calculate_score(phone_row: pd.Series, weights: dict) -> float:
         phone_row["camera_score"] * weights["camera"]
         + phone_row["performance_score"] * weights["performance"]
         + phone_row["battery_score"] * weights["battery"]
+        + phone_row["display_score"] * weights["display"]
         + phone_row["value_score"] * weights["value"]
     )
 
@@ -46,5 +47,8 @@ def recommend_all_personas(personas: dict, df: pd.DataFrame) -> dict:
 
 
 def compare_phones(model_names: list, df: pd.DataFrame) -> pd.DataFrame:
-    cols = ["model_name", "price_inr", "camera_score", "performance_score", "battery_score", "value_score"]
+    cols = [
+        "model_name", "price_inr", "camera_score", "performance_score",
+        "battery_score", "display_score", "value_score",
+    ]
     return df[df["model_name"].isin(model_names)][cols].set_index("model_name")

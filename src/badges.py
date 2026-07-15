@@ -10,6 +10,7 @@ _BADGE_META = {
     "performance_score": ("bolt", "Gaming Beast"),
     "value_score": ("balance", "Best Value"),
     "battery_score": ("bolt", "Marathon Battery"),
+    "display_score": ("display", "Best Display"),
 }
 
 

@@ -11,6 +11,7 @@ _TEMPLATES = {
     "camera": "{name}'s camera score leads the shortlist while staying within budget.",
     "performance": "{name} keeps up with demanding use and won't slow down mid-task.",
     "battery": "{name} offers strong all-day battery life for your routine.",
+    "display": "{name}'s display is the standout here — great for photos, video, or long reading sessions.",
     "value": "{name} gives the best overall spec-for-price balance in range.",
 }
 
@@ -32,7 +33,8 @@ def generate_explanation_llm(weights: dict, phone_row: pd.Series) -> str | None:
         f"Priorities (0-1 weights): {weights}\n"
         f"Phone: {phone_row['model_name']}, camera={phone_row['camera_score']:.1f}, "
         f"performance={phone_row['performance_score']:.1f}, "
-        f"battery={phone_row['battery_score']:.1f}, value={phone_row['value_score']:.1f}\n"
+        f"battery={phone_row['battery_score']:.1f}, display={phone_row['display_score']:.1f}, "
+        f"value={phone_row['value_score']:.1f}\n"
         "Return ONLY the sentence, no preamble."
     )
     return llm_client.call_local_llm(prompt, expect_json=False)
