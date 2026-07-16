@@ -1,0 +1,21 @@
+model_name,release_year,series,price_inr,processor,ram_gb,storage_gb,camera_mp,battery_mah,screen_size_inch,display_type,refresh_rate_hz,charging_w,os_support_years,target_segment,camera_score,performance_score,battery_score,display_score,value_score
+Galaxy S26 Ultra,2026,S Series,139999,Snapdragon 8 Elite Gen 5 for Galaxy,12,256,200,5000,6.9,Dynamic AMOLED 2X (Privacy Display),120,60,7,Flagship (S Pen),10.0,10.0,9.0,10.0,2.3
+Galaxy S26+,2026,S Series,99999,Exynos 2600,12,256,50,4900,6.7,Dynamic AMOLED 2X,120,45,7,Flagship,7.0,9.7,7.9,10.0,2.8
+Galaxy S26,2026,S Series,87999,Exynos 2600,12,256,50,4300,6.3,Dynamic AMOLED 2X,120,25,7,Flagship,7.0,9.7,6.0,10.0,3.0
+Galaxy S25 Ultra,2025,S Series,129999,Snapdragon 8 Elite for Galaxy,12,256,200,5000,6.9,Dynamic AMOLED 2X,120,45,7,Flagship (S Pen),10.0,10.0,8.0,10.0,2.4
+Galaxy Z Fold7,2025,Z Series,174999,Snapdragon 8 Elite for Galaxy,12,256,200,4400,8.0,Dynamic AMOLED 2X (foldable),120,25,7,Foldable Flagship,10.0,10.0,6.1,10.0,1.7
+Galaxy Z Flip7,2025,Z Series,109999,Exynos 2500,12,256,50,4300,6.9,Dynamic AMOLED 2X (foldable),120,25,7,Foldable Flagship,7.0,8.7,6.0,10.0,2.3
+Galaxy Z Flip7 FE,2025,Z Series,89999,Exynos 2400,8,128,50,4000,6.7,Dynamic AMOLED 2X (foldable),120,25,6,Foldable (Value),6.0,7.6,5.7,10.0,2.6
+Galaxy Z Fold6,2024,Z Series,164999,Snapdragon 8 Gen 3 for Galaxy,12,256,50,4400,7.6,Dynamic AMOLED 2X (foldable),120,25,7,Foldable Flagship,7.0,10.0,6.1,10.0,1.6
+Galaxy A57 5G,2026,A Series,46990,Exynos 1680,8,128,50,5000,6.7,Super AMOLED,120,45,6,Upper Mid-range,5.5,5.8,8.0,7.5,4.6
+Galaxy A37 5G,2026,A Series,41999,Snapdragon 6 Gen 4,8,128,50,5000,6.7,Super AMOLED,120,45,6,Mid-range,5.0,5.9,8.0,7.5,5.1
+Galaxy A17 5G,2026,A Series,19999,MediaTek Dimensity 6300,6,128,50,5000,6.7,Super AMOLED,90,25,6,Mid-range,5.0,3.5,6.7,6.8,8.9
+Galaxy A56 5G,2025,A Series,38999,Exynos 1580,8,128,50,5000,6.7,Super AMOLED,120,45,6,Upper Mid-range,5.5,6.1,8.0,7.5,5.6
+Galaxy M56 5G,2025,M Series,27999,Exynos 1480,8,128,50,5000,6.7,Super AMOLED Plus,120,45,6,Upper Mid-range,5.5,5.4,8.0,8.5,8.0
+Galaxy M36 5G,2025,M Series,19999,Exynos 1380,6,128,50,6000,6.7,Super AMOLED,120,25,4,Mid-range,5.0,4.5,7.7,7.5,10.0
+Galaxy M16 5G,2025,M Series,15999,MediaTek Dimensity 6300,6,128,50,6000,6.7,Super AMOLED,90,25,4,Budget,5.0,3.5,7.7,6.8,10.0
+Galaxy M55 5G,2024,M Series,25999,Snapdragon 7 Gen 3,8,128,50,5000,6.7,Super AMOLED,120,45,3,Mid-range,5.0,6.6,8.0,7.5,8.5
+Galaxy F56 5G,2025,F Series,27800,Exynos 1480,8,128,50,5000,6.7,Super AMOLED Plus,120,45,6,Upper Mid-range,5.5,5.4,8.0,8.5,8.0
+Galaxy F36 5G,2025,F Series,22999,Snapdragon 6 Gen 3,8,128,50,6000,6.7,Super AMOLED,120,45,4,Mid-range,5.0,5.6,9.0,7.5,9.6
+Galaxy F16 5G,2025,F Series,16999,MediaTek Dimensity 6300,6,128,50,6000,6.7,Super AMOLED,90,25,4,Budget,5.0,3.5,7.7,6.8,10.0
+Galaxy F55 5G,2024,F Series,29999,Exynos 1480,8,128,50,5000,6.7,Super AMOLED Plus,120,45,4,Mid-range,5.0,5.4,8.0,8.5,7.3
