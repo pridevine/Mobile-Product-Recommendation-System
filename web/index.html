@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GalaxyMatch AI — Find Your Perfect Galaxy</title>
+<link rel="stylesheet" href="home.css" />
+</head>
+<body>
+
+<!-- ============ BLACK HERO BLOCK ============ -->
+<header class="hero-block">
+  <canvas id="darkveil" data-speed="0.5" data-noise="0.02"></canvas>
+  <div class="hero-inner">
+
+    <nav class="nav">
+      <a class="nav-logo" href="index.html"><img src="assets/samsung_logo.png"
+        alt="Samsung" onerror="this.remove()" /><span>SAMSUNG</span></a>
+      <div class="nav-links">
+        <a href="#personas">Personas</a>
+        <a href="#describe">Describe Yourself</a>
+        <a href="results.html?persona=arjun">Sample Results</a>
+        <a href="#how">How Scoring Works</a>
+        <a href="https://github.com/pridevine/Mobile-Product-Recommendation-System" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <button class="nav-cta" id="nav-get">Get Started</button>
+    </nav>
+
+    <div class="hero-head">
+      <h1>Meet The Galaxy That Was Made For You. Matched By AI Today.</h1>
+    </div>
+
+    <div class="hero-cta-row">
+      <a class="btn-pill specular-btn" href="#personas"
+         data-line-color="#ffffff" data-base-color="#6a6d74" data-proximity="300">Find My Galaxy</a>
+    </div>
+
+    <div class="stage">
+      <img class="stage-phone" src="assets/hero_phone.png" alt="Samsung Galaxy S26 Ultra, rear view" />
+
+      <div class="callout callout-left">
+        <div class="co-text">Galaxy S26 Ultra<br />200&nbsp;MP Pro Camera</div>
+        <span class="co-dot"></span>
+        <span class="co-line v"></span>
+        <span class="co-line h"></span>
+      </div>
+
+      <div class="callout callout-right">
+        <div class="co-text">Ranked by a transparent<br />weighted-sum score</div>
+        <span class="co-dot"></span>
+        <span class="co-line v"></span>
+        <span class="co-line h"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-foot" id="how">
+    Every recommendation is scored across camera, performance, battery, display and value — openly, so you can see exactly why a phone ranks where it does. <u id="foot-more">Learn more</u>
+  </div>
+</header>
+
+<!-- ============ WHITE SECTION: PERSONAS ============ -->
+<section class="choose" id="personas">
+  <div class="choose-head">
+    <h2>Who are you shopping for?</h2>
+    <p>Pick the profile that sounds most like you — or describe yourself in your own words below.</p>
+  </div>
+
+  <div class="p-cards">
+    <button class="p-card" data-persona="arjun">
+      <span class="p-tag">Gamer</span>
+      <h3>Arjun</h3>
+      <p>Engineering student who plays BGMI. Wants performance and battery that keep up.</p>
+      <span class="p-foot"><span class="p-budget">₹20k – ₹35k</span><span class="p-go">Find matches</span></span>
+    </button>
+    <button class="p-card" data-persona="priya">
+      <span class="p-tag">Creator</span>
+      <h3>Priya</h3>
+      <p>Wedding photographer. Camera quality and a bright display come first.</p>
+      <span class="p-foot"><span class="p-budget">₹45k – ₹70k</span><span class="p-go">Find matches</span></span>
+    </button>
+    <button class="p-card" data-persona="neha">
+      <span class="p-tag">Professional</span>
+      <h3>Neha</h3>
+      <p>Consultant who travels weekly. Needs all-day battery and reliability.</p>
+      <span class="p-foot"><span class="p-budget">₹55k – ₹1L</span><span class="p-go">Find matches</span></span>
+    </button>
+    <button class="p-card" data-persona="ravi">
+      <span class="p-tag">Everyday</span>
+      <h3>Mr. Ravi</h3>
+      <p>Small business owner. Keeps it simple and affordable, with long battery life.</p>
+      <span class="p-foot"><span class="p-budget">₹8k – ₹20k</span><span class="p-go">Find matches</span></span>
+    </button>
+  </div>
+</section>
+
+<section class="describe" id="describe">
+  <div class="or-divider"><span>or describe yourself</span></div>
+  <div class="describe-row">
+    <input id="describe-input" type="text"
+      placeholder="e.g. I'm a college student, budget 30000, I play BGMI a lot and need good battery." />
+    <button id="describe-go" class="specular-btn"
+      data-line-color="#ffffff" data-base-color="#4a4d54" data-proximity="260">Find my Galaxy</button>
+  </div>
+</section>
+
+<p class="disclaimer">GalaxyMatch AI — a student capstone project, not an official Samsung product.</p>
+
+<script src="darkveil.js"></script>
+<script src="specular.js"></script>
+<script src="home.js"></script>
+</body>
+</html>
