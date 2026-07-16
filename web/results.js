@@ -28,11 +28,43 @@ function readParams() {
 
 function inr(n) { return "₹" + n.toLocaleString("en-IN"); }
 
+// Progressive enhancement: the card already shows the local template. Ask the
+// serverless function (which holds the API key) for a grounded Gemini
+// explanation and swap it in if it comes back. Any failure leaves the template
+// in place — the card is never blank, and the page never blocks on this.
+async function enhanceTopExplanation(p) {
+  const el = document.getElementById("rec-explain");
+  if (!el || !p) return;
+  el.classList.add("rec-why-loading");
+  try {
+    const res = await fetch("/api/explain", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: p, weights: state.weights }),
+    });
+    const data = await res.json();
+    if (data && data.text) {
+      el.textContent = data.text;
+      el.classList.add("rec-why-ai");      // shows the "✦ Gemini" tag via CSS
+    }
+  } catch (_) {
+    /* offline, or no /api (e.g. opened as a file): keep the template */
+  } finally {
+    el.classList.remove("rec-why-loading");
+  }
+}
+
 function recRow(rank, p) {
   const subRows = SUBS.map(([col, label]) =>
     `<div class="sub-row"><span class="sub-label">${label}</span>
        <div class="sub-track"><div class="sub-fill" data-w="${p[col] * 10}"></div></div>
        <span class="sub-val">${p[col].toFixed(1)}</span></div>`).join("");
+  // The #1 match gets an explanation: the local template shows instantly, then
+  // enhanceTopExplanation() upgrades it to grounded Gemini text if /api/explain
+  // succeeds. The page is never blank and never blocks on the network.
+  const explain = rank === 0
+    ? `<p class="rec-why-text" id="rec-explain">${generateExplanation(state.weights, p)}</p>`
+    : "";
   // Same phoneVisual() as the deck, so a phone looks identical in both places.
   return `<article class="rec-row${rank === 0 ? " hot" : ""}" data-rank="${rank}">
     <div class="rec-thumb">${phoneVisual(p)}</div>
@@ -49,6 +81,7 @@ function recRow(rank, p) {
         <span>${p.battery_mah}mAh</span>
         <span>${p.screen_size_inch}&Prime; ${p.refresh_rate_hz || 120}Hz</span>
       </div>
+      ${explain}
       <button class="rec-why">Why this score?</button>
       <div class="breakdown"><div class="breakdown-inner">${subRows}</div></div>
     </div>
@@ -82,6 +115,8 @@ function paint() {
     list.querySelectorAll(".sub-fill").forEach(el => el.style.width = el.dataset.w + "%")));
   list.querySelectorAll(".rec-why").forEach(btn =>
     btn.addEventListener("click", () => btn.nextElementSibling.classList.toggle("open")));
+
+  enhanceTopExplanation(top3[0]);
 
   const stage = document.getElementById("cs-stage");
   if (deck) deck.destroy();

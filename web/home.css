@@ -332,6 +332,18 @@ a.nav-cta { display: inline-flex; align-items: center; }
 .rec-pct { margin-left: auto; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .rec-meta { display: flex; gap: 18px; margin: 10px 0 0 42px; font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 .rec-meta b { color: var(--ink); font-weight: 700; }
+/* #1 match's explanation (template first, upgraded to Gemini text on load) */
+.rec-why-text {
+  margin: 12px 0 0 42px; font-size: 13.5px; line-height: 1.55; color: var(--ink);
+  transition: opacity 0.25s ease;
+}
+.rec-why-loading { opacity: 0.45; }
+/* When the grounded Gemini text lands, tag it so it's visibly the live AI. */
+.rec-why-ai::before {
+  content: "✦ Gemini"; display: inline-block; margin-right: 8px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.06em; vertical-align: 1px;
+  color: #6a5cff; border: 1px solid #d9d5ff; border-radius: 999px; padding: 2px 7px;
+}
 .rec-why {
   margin: 12px 0 0 42px; border: none; background: none; padding: 0;
   font-size: 13px; font-weight: 600; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px;
