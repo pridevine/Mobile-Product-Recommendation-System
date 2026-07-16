@@ -14,11 +14,19 @@ import os
 
 from dotenv import load_dotenv
 from google import genai
-from google.genai import types
+from google.genai import errors, types
 
 load_dotenv()
 
 MODEL_NAME = "gemini-3.5-flash"
+
+# gemini-3.5-flash returns 503 UNAVAILABLE under load, and did so persistently
+# while we were testing. Rather than let a demo fall back to rule-based
+# templates because Google was busy, retry once on another free model.
+# Checked 2026-07-16: gemini-2.5-flash and gemini-2.5-flash-lite are 404 on
+# this API version despite still being listed on the pricing page, so they are
+# not usable fallbacks. gemini-3-flash-preview answered 3/3.
+FALLBACK_MODEL = "gemini-3-flash-preview"
 
 # Set GALAXYMATCH_STRICT_AI=1 to make API failures raise instead of falling
 # back to templates. Use it for the graded demo: without it a dead API is
@@ -48,6 +56,34 @@ def _get_client() -> genai.Client:
     return _client
 
 
+def _generate(prompt: str, config):
+    """Call MODEL_NAME, falling back to FALLBACK_MODEL when Google is busy.
+
+    Only 503 is retried: it means the request authenticated and reached a
+    model router that had no capacity. A 400/403 is our mistake and a 404 is a
+    retired model — neither is fixed by asking a second model the same thing.
+    """
+    client = _get_client()
+    try:
+        return client.models.generate_content(
+            model=MODEL_NAME, contents=prompt, config=config
+        )
+    except (errors.ServerError, errors.ClientError) as e:
+        # 503 = model busy. 429 = we hit the free-tier cap, which is 20
+        # requests per DAY per model — so the fallback model has its own
+        # untouched 20. Both are worth asking a different model.
+        # Anything else (400 bad request, 403 bad key, 404 retired model) is
+        # not fixed by re-asking, so let it surface.
+        msg = str(e)
+        if not any(k in msg for k in ("503", "UNAVAILABLE", "429", "RESOURCE_EXHAUSTED")):
+            raise
+        why = "quota exhausted" if "429" in msg else "busy"
+        print(f"[{MODEL_NAME} {why} -> retrying on {FALLBACK_MODEL}]")
+        return client.models.generate_content(
+            model=FALLBACK_MODEL, contents=prompt, config=config
+        )
+
+
 def call_llm(
     prompt: str,
     expect_json: bool = False,
@@ -61,11 +97,7 @@ def call_llm(
     """
 
     try:
-        response = _get_client().models.generate_content(
-            model=MODEL_NAME,
-            contents=prompt,
-            config=config,
-        )
+        response = _generate(prompt, config)
 
         # response.text is None when the response is blocked by a safety
         # filter or stops before emitting any text.

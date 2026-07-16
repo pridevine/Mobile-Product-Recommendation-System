@@ -33,7 +33,11 @@ from src.prompts import (
 # re-running it.
 GROUNDED_CFG = types.GenerateContentConfig(
     system_instruction=SYSTEM_INSTRUCTION,
-    max_output_tokens=400,
+    # Gemini 3 models think before answering, and those reasoning tokens count
+    # against max_output_tokens. At 400 the model spent the budget thinking and
+    # returned a sentence cut off mid-clause. The prompt already caps length at
+    # 60 words; this is only a runaway guard, so keep it well clear.
+    max_output_tokens=2048,
     seed=7,
 )
 
