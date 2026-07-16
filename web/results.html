@@ -4,55 +4,42 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>GalaxyMatch AI — Your Top 3 Matches</title>
-<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="home.css" />
 </head>
 <body>
-<div class="wrap">
 
-  <nav class="nav">
-    <a class="nav-logo" href="index.html">SAMSUNG</a>
-    <div class="nav-links">
-      <a href="#">Mobile</a><a href="#">TV &amp; Audio</a><a href="#">Home Appliances</a>
-      <a href="#">Computing</a><a href="#">Displays</a><a href="#">Accessories</a><a href="#">SmartThings</a>
-    </div>
-    <div class="nav-icons" id="nav-icons"></div>
-  </nav>
+<nav class="nav nav-light nav-pad">
+  <a class="nav-logo" href="index.html"><img src="assets/samsung_logo.png"
+    alt="Samsung" onerror="this.remove()" /><span>SAMSUNG</span></a>
+  <div class="nav-links">
+    <a href="index.html#personas">Personas</a>
+    <a href="index.html#describe">Describe Yourself</a>
+    <a href="index.html#how">How Scoring Works</a>
+    <a href="https://github.com/pridevine/Mobile-Product-Recommendation-System" target="_blank" rel="noopener">GitHub</a>
+  </div>
+  <a class="nav-cta" href="index.html" style="text-decoration:none;">&larr; Start Over</a>
+</nav>
 
-  <section class="hero">
-    <div class="hero-content">
-      <div class="hero-eyebrow"><span id="hero-eyebrow-icon"></span> Galaxy AI Shopping Assistant</div>
-      <h1>Galaxy<span class="accent">Match AI</span></h1>
-      <p class="hero-tagline">Tell us who you are. We'll find your perfect Galaxy.</p>
-    </div>
-    <div class="hero-phone" id="hero-phone"></div>
-  </section>
-
-  <div class="controls">
-    <a class="persona-chip" href="index.html" style="text-decoration:none;">&larr; Start over</a>
-    <span class="controls-sep"></span>
-    <div id="persona-chips" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
+<main class="results-wrap">
+  <div class="results-head">
+    <h1>Your Top 3 Matches</h1>
+    <p id="matches-sub">Ranked by a transparent weighted-sum score.</p>
   </div>
 
-  <div class="matches-head">
-    <div>
-      <h2>Your Top 3 Matches</h2>
-      <p id="matches-sub">Ranked by a transparent weighted-sum score.</p>
-    </div>
-    <div class="trust-pill">
-      <span id="trust-icon"></span>
-      <div><b>Transparent. Reliable. You First.</b><span>We show why, so you know.</span></div>
-    </div>
+  <div class="chips" id="persona-chips"></div>
+
+  <div class="results-grid">
+    <div id="rec-list"></div>
+    <div class="cs-stage" id="cs-stage"></div>
   </div>
+</main>
 
-  <div class="cards" id="cards"></div>
+<p class="disclaimer">GalaxyMatch AI — a student capstone project, not an official Samsung product.</p>
 
-  <div class="features" id="features"></div>
-  <p class="footnote">Scores are based on performance, features, battery, camera, price and real-world usage.</p>
-  <p class="disclaimer">GalaxyMatch AI — a student capstone project, not an official Samsung product.</p>
-
-</div>
 <script src="vendor/lenis.min.js"></script>
 <script src="scroll.js"></script>
+<script src="vendor/gsap.min.js"></script>
+<script src="cardswap.js"></script>
 <script src="engine.js"></script>
 <script src="results.js"></script>
 </body>
