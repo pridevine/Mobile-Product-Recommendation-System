@@ -1,6 +1,6 @@
 /* GalaxyMatch AI — landing page.
    Theme: white page with a full-width black hero block; slim nav, centered
-   bold headline, product shot with thin callout annotations, outlined pill
+   bold headline, outlined pill, and supporting copy
    CTA, tiny footnote. Static build — motion layered on later. */
 
 @font-face {
@@ -60,7 +60,7 @@ a { text-decoration: none; color: inherit; }
   position: absolute; inset: 0; width: 100%; height: 100%;
   display: block; z-index: 0; pointer-events: none;
 }
-/* soft dark scrim over the veil so type & callouts stay crisp */
+/* soft dark scrim over the veil so the text stays crisp */
 .hero-block::after {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
@@ -134,46 +134,6 @@ a.nav-cta { display: inline-flex; align-items: center; }
   transition: background 0.15s;
 }
 .btn-pill:hover { background: rgba(255,255,255,0.12); }
-
-/* --- product stage: phone + callout annotations --- */
-.stage {
-  position: relative;
-  flex: 1;
-  min-height: 0;   /* let flex size it so the hero never exceeds one screen */
-  margin-top: 4px;
-}
-.stage-phone {
-  position: absolute; left: 50%; bottom: 0;
-  transform: translateX(-50%) scaleX(1.16);
-  transform-origin: center bottom;
-  height: 100%;
-  filter: drop-shadow(0 34px 60px rgba(0,0,0,0.85));
-}
-/* thin callout lines with dot endpoints, reaching toward the phone */
-.callout {
-  position: absolute;
-  font-size: 13px; font-weight: 500; color: var(--white); line-height: 1.5;
-  z-index: 4;
-}
-.callout .co-line { position: absolute; background: rgba(255,255,255,0.5); }
-.callout .co-dot {
-  position: absolute; width: 7px; height: 7px; border-radius: 50%;
-  background: var(--white);
-}
-.callout-left { left: 7%; top: 16%; text-align: left; }
-.callout-left .co-dot { left: 0; top: 56px; }
-.callout-left .co-line.v { left: 3px; top: 63px; width: 1px; height: 72px; }
-.callout-left .co-line.h { left: 3px; top: 135px; height: 1px; width: min(24vw, 300px); }
-
-.callout-right { right: 7%; top: 22%; text-align: right; }
-.callout-right .co-dot { right: 0; top: 56px; }
-.callout-right .co-line.v { right: 3px; top: 63px; width: 1px; height: 72px; }
-.callout-right .co-line.h { right: 3px; top: 135px; height: 1px; width: min(24vw, 300px); }
-
-@media (max-width: 860px) {
-  .callout { display: none; }
-  .stage-phone { max-height: 420px; }
-}
 
 /* --- footnote --- */
 .hero-foot {
