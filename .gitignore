@@ -26,3 +26,9 @@ assets/phones/*.webp
 # OS
 .DS_Store
 Thumbs.db
+
+# Vercel (added by `vercel link`) — .env.local holds a pulled OIDC token
+.vercel
+.env*
+# ...but .env.example documents what to set, so it stays tracked.
+!.env.example
