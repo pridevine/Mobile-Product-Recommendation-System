@@ -99,7 +99,7 @@ const UNKNOWN_MODEL_RE = /\b(?:samsung|galaxy)\s+(?:galaxy\s+)?[a-z]{0,5}-?\s?(\
 // Mirrors api/safety.js's UNSUPPORTED_FEATURE_RE -- hardware phones.csv has
 // no column for. Checked before KEYWORDS below, since "pop up camera"
 // contains "camera" and would otherwise be scored as a camera request.
-const UNSUPPORTED_FEATURE_RE = /\b(?:pop[\s-]?up|under[\s-]?display|in[\s-]?display|punch[\s-]?hole|periscope|telephoto)\b[\s\w]{0,10}\b(?:camera|selfie|lens|zoom)\b|\boptical\s+zoom\b|\b(?:headphone|audio|3\.5\s?mm)\s*jack\b|\b(?:micro\s?sd|sd\s+card|memory\s+card|expandable\s+storage)\b|\bir\s+blaster\b|\b(?:wireless|reverse)\s+charg(?:ing|er)\b|\b(?:water[\s-]?proof|water[\s-]?resistant|ip6[78])\b|\bgorilla\s+glass\b|\b(?:fingerprint|face\s+unlock|iris\s+scanner)\b|\be[\s-]?sim\b|\bdual\s+sim\b|\b(?:stereo\s+speakers?|dolby)\b|\bsatellite\b/i;
+const UNSUPPORTED_FEATURE_RE = /\b(?:pop[\s-]?up|under[\s-]?display|punch[\s-]?hole|periscope|telephoto)\b|\bin-display\b|\boptical\s+zoom\b|\b(?:headphone|audio|3\.5\s?mm)\s*jack\b|\b(?:micro\s?sd|sd\s+card|memory\s+card|expandable\s+storage)\b|\bir\s+blaster\b|\b(?:wireless|reverse)\s+charg(?:ing|er)\b|\b(?:water[\s-]?proof|water[\s-]?resistant|ip6[78])\b|\bgorilla\s+glass\b|\b(?:fingerprint|face\s+unlock|iris\s+scanner)\b|\be[\s-]?sim\b|\bdual\s+sim\b|\b(?:stereo\s+speakers?|dolby)\b|\bsatellite\b/i;
 // Real S Pen support in this catalogue: the Ultra tier (built-in) and Z Fold
 // (compatible, sold separately) -- matches actual Samsung product lines, not
 // a guess. Flip and A/M/F series don't support it.

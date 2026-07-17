@@ -31,7 +31,12 @@ const UNKNOWN_MODEL_RE = /\b(?:samsung|galaxy)\s+(?:galaxy\s+)?[a-z]{0,5}-?\s?(\
 // phone. Checked before the keyword pass, because "pop up camera" contains
 // "camera" and would otherwise score as a camera request and confidently
 // return an unrelated model.
-const UNSUPPORTED_FEATURE_RE = /\b(?:pop[\s-]?up|under[\s-]?display|in[\s-]?display|punch[\s-]?hole|periscope|telephoto)\b[\s\w]{0,10}\b(?:camera|selfie|lens|zoom)\b|\boptical\s+zoom\b|\b(?:headphone|audio|3\.5\s?mm)\s*jack\b|\b(?:micro\s?sd|sd\s+card|memory\s+card|expandable\s+storage)\b|\bir\s+blaster\b|\b(?:wireless|reverse)\s+charg(?:ing|er)\b|\b(?:water[\s-]?proof|water[\s-]?resistant|ip6[78])\b|\bgorilla\s+glass\b|\b(?:fingerprint|face\s+unlock|iris\s+scanner)\b|\be[\s-]?sim\b|\bdual\s+sim\b|\b(?:stereo\s+speakers?|dolby)\b|\bsatellite\b/i;
+// Mechanism terms match standalone: "pop up" on its own is already an ask
+// about a camera mechanism we have no column for, and requiring the word
+// "camera" after it let "pop up" through to a confident answer. "in-display"
+// needs its hyphen -- bare "in display" appears in ordinary sentences like
+// "interested in display quality", which must still work.
+const UNSUPPORTED_FEATURE_RE = /\b(?:pop[\s-]?up|under[\s-]?display|punch[\s-]?hole|periscope|telephoto)\b|\bin-display\b|\boptical\s+zoom\b|\b(?:headphone|audio|3\.5\s?mm)\s*jack\b|\b(?:micro\s?sd|sd\s+card|memory\s+card|expandable\s+storage)\b|\bir\s+blaster\b|\b(?:wireless|reverse)\s+charg(?:ing|er)\b|\b(?:water[\s-]?proof|water[\s-]?resistant|ip6[78])\b|\bgorilla\s+glass\b|\b(?:fingerprint|face\s+unlock|iris\s+scanner)\b|\be[\s-]?sim\b|\bdual\s+sim\b|\b(?:stereo\s+speakers?|dolby)\b|\bsatellite\b/i;
 const NO_DATA_MESSAGE =
   "I don't have specification data for that. Our catalogue covers camera megapixels, processor, RAM, storage, battery, display, charging speed and price — tell me your budget and which of those matters most, and I'll match you to a real Galaxy phone.";
 

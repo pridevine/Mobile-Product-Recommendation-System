@@ -50,7 +50,10 @@ if (input) {
     // rehearsal reuses the prior parse instead of spending quota on an
     // identical request. isDown() skips the call entirely once this session
     // has already seen the API fail a couple of times in a row.
-    const cacheKey = `parse:${query}`;
+    // Versioned: a profile cached before a screening rule existed would still
+    // be served from cache and skip the API (and its guards) entirely. Bump
+    // this whenever screening changes, so stale entries can never be reused.
+    const cacheKey = `parse:v2:${query}`;
     const cached = AIGuard.cacheGet(cacheKey);
     if (cached) {
       profile = cached;

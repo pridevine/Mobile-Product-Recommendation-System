@@ -26,17 +26,19 @@ function readParams() {
         prefs = { weights: profile.weights, budget_min: profile.budget_min, budget_max: profile.budget_max };
       }
     } catch (_) { /* malformed profile falls back to local extraction */ }
-    // Only screen here when falling back to the local extractor: a `profile`
-    // already present means /api/parse succeeded and screened it server-side.
-    if (!prefs) {
-      const screened = screenQuery(q);
-      if (screened.blocked) {
-        // Only "abuse" counts as a strike -- competitor/off-topic asks never should.
-        const message = screened.reason === "abuse" ? AIGuard.recordAbuseStrike().message : screened.message;
-        return { blocked: true, message, reason: screened.reason };
-      }
-      prefs = extractPreferences(q);
+    // Screen the raw query unconditionally. A `profile` in the URL used to be
+    // treated as proof /api/parse had screened it, but home.js serves repeat
+    // searches from its sessionStorage cache without calling the API at all --
+    // so a profile cached before a guard existed would sail straight past that
+    // guard. Screening is a local regex with no network cost; there is no
+    // reason to make it conditional.
+    const screened = screenQuery(q);
+    if (screened.blocked) {
+      // Only "abuse" counts as a strike -- competitor/off-topic asks never should.
+      const message = screened.reason === "abuse" ? AIGuard.recordAbuseStrike().message : screened.message;
+      return { blocked: true, message, reason: screened.reason };
     }
+    if (!prefs) prefs = extractPreferences(q);
     // Checked on the raw query independent of where prefs came from (server
     // AI parse or local extraction) -- neither path carries a "requires S
     // Pen" concept, and this is a hard filter, not a weight to infer.
