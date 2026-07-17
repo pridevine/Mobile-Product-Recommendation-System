@@ -8,11 +8,13 @@
 //
 // Why Groq: the free tier is 14,400 requests/day on llama-3.1-8b-instant,
 // versus Gemini's 20/day -- verified against
-// https://console.groq.com/docs/models and .../rate-limits on 2026-07-17,
-// because the model this was originally requested under
-// ("llama3-groq-tool-use") does not exist in Groq's current lineup at all --
-// the same kind of stale-model-name mistake this project's write-up already
-// documents happening with gemini-2.5-flash.
+// https://console.groq.com/docs/models and .../rate-limits on 2026-07-17.
+//
+// The model this was originally requested under ("llama3-groq-tool-use") is
+// real, but only as an Ollama library model for local inference (8b/70b,
+// pullable today) -- it is not served on Groq's own cloud API, so nothing
+// running on Vercel can reach it. A notebook on the same machine as an
+// Ollama server could use it directly; this serverless function cannot.
 //
 // Groq is OpenAI-compatible: POST /openai/v1/chat/completions, Authorization:
 // Bearer <key>, messages: [{role, content}] -- a different shape from
