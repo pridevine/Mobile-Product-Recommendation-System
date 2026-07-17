@@ -171,6 +171,15 @@ module.exports = async function handler(req, res) {
       status: error?.status || null,
       blocked: Boolean(error?.blocked),
     });
+    // Reported separately from "error" so the client can tell a transient
+    // rate limit from a real failure. Groq's cap is per-MINUTE: several
+    // questions in quick succession hit it and it clears within seconds. The
+    // client's circuit breaker was built for Gemini's 20-per-DAY quota, where
+    // backing off for 5 minutes is right; applying that to a 60-second limit
+    // would take chat AND the results-page explanation down for no reason.
+    if (error?.status === 429 || error?.status === 503) {
+      return res.status(200).json({ reply: null, source: "rate-limited" });
+    }
     return res.status(200).json({ reply: null, source: "error" });
   }
 };
