@@ -134,6 +134,17 @@ const UNKNOWN_MODEL_MESSAGE =
   "We couldn't find that model in our Samsung Galaxy lineup. Tell me your budget and priorities instead — camera, gaming, battery, display, or value — and I'll match you to a real Galaxy phone.";
 const NO_DATA_MESSAGE =
   "I don't have specification data for that. Our catalogue covers camera megapixels, processor, RAM, storage, battery, display, charging speed and price — tell me your budget and which of those matters most, and I'll match you to a real Galaxy phone.";
+const OFF_TOPIC_MESSAGE =
+  "I'm GalaxyMatch — I only help with choosing a Samsung Galaxy phone. Tell me your budget and what matters most (camera, gaming, battery, display or value) and I'll find your match.";
+// Mirrors api/safety.js's RELEVANT_RE / looksLikePhoneRequest(). An allowlist,
+// unlike every other rule here: a blocklist can't cover "what's the weather",
+// which matched nothing and got answered with a phone as if understood.
+const RELEVANT_RE = /\b(?:phone|mobile|smartphone|handset|device|galaxy|samsung|upgrade|buy|buying|purchase|recommend|recommendation|suggest|looking|need|want|budget|price|pricing|cost|cheap|affordable|expensive|premium|flagship|midrange|mid-range|spec|specs|specification|model|compare|camera|photo|photos|photography|selfie|selfies|video|videos|record|recording|shoot|shooting|reel|reels|vlog|megapixel|mp|game|games|gaming|gamer|bgmi|pubg|cod|fortnite|fps|performance|processor|chipset|snapdragon|exynos|ram|storage|speed|fast|smooth|multitask|multitasking|lag|battery|charge|charging|backup|mah|endurance|display|screen|amoled|oled|refresh|hz|inch|inches|bright|brightness|value|worth|money|student|college|creator|influencer|photographer|professional|business|consultant|freelancer|travel|travelling|traveling|commute|work|office|shop|owner|mom|dad|mother|father|parent|gift|senior|kid|teen|pen|stylus|note|5g|ultra|fold|flip|plus|pro|fe)\b/i;
+const BUDGETISH_RE = /\d{3,}|\d+\s*(?:k|thousand|lakh|lac)\b/i;
+const MODELISH_RE = /\b(?:[sazmf]\s?\d{1,3}|fold\s?\d?|flip\s?\d?)\b/i;
+function looksLikePhoneRequest(text) {
+  return RELEVANT_RE.test(text) || BUDGETISH_RE.test(text) || MODELISH_RE.test(text);
+}
 
 // `reason` mirrors api/safety.js's contract: only "abuse" should ever count
 // as a strike toward AIGuard's warn-then-restrict escalation.
@@ -150,6 +161,11 @@ function screenQuery(text) {
   }
   if (COMPETITOR_RE.test(raw)) {
     return { blocked: true, message: SAMSUNG_ONLY_MESSAGE, reason: "competitor" };
+  }
+  // Last: the rules above give a more useful message than the generic
+  // off-topic one, so this only catches what none of them recognised.
+  if (!looksLikePhoneRequest(raw)) {
+    return { blocked: true, message: OFF_TOPIC_MESSAGE, reason: "off_topic" };
   }
   return { blocked: false, message: "", reason: null };
 }

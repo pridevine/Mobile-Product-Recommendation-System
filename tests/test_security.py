@@ -39,11 +39,16 @@ def test_screen_user_text_blocks_slurs_before_they_ever_reach_the_recommender():
         result = security.screen_user_text(text)
         assert result["blocked"] is True, text
         assert result["reason"] == "abuse", text
-    # Words that merely contain a slur's letters as a substring must not
-    # false-positive (word-boundary check).
+    # Words that merely contain a slur's letters as a substring must not be
+    # mistaken for slurs (word-boundary check). These are off-topic for a phone
+    # shop and get refused as such -- what matters is that they are never
+    # treated as abuse, since that would count a strike toward the 24h ban.
     for text in ["I'm from Pakistan", "a raccoon crossed the road"]:
-        result = security.screen_user_text(text)
-        assert result["blocked"] is False, text
+        assert security.screen_user_text(text)["reason"] != "abuse", text
+    # ...and the same words inside a genuine request must not block it at all.
+    for text in ["I'm from Pakistan, need a phone under 20000",
+                 "budget 30000, good camera"]:
+        assert security.screen_user_text(text)["blocked"] is False, text
 
 
 def test_screen_user_text_blocks_nonexistent_model_numbers():
@@ -99,6 +104,38 @@ def test_asking_for_hardware_the_catalogue_has_no_column_for_returns_no_data():
                  "fast charging phone budget 30000", "big display 120hz",
                  "phone with s pen", "interested in display quality, budget 40000"]:
         assert security.screen_user_text(text)["blocked"] is False, text
+
+
+def test_off_topic_requests_are_refused_without_refusing_real_shoppers():
+    # Every other rule is a blocklist, which can't cover "what's the weather" --
+    # it matched nothing, fell through to the default weights, and got answered
+    # with a phone. This gate is the inverse: show some sign of shopping for a
+    # phone, or get redirected.
+    for text in ["what's the weather", "write me a poem", "hello", "asdfgh",
+                 "tell me a joke", "who is the prime minister"]:
+        result = security.screen_user_text(text)
+        assert result["blocked"] is True, text
+        assert result["reason"] == "off_topic", text
+
+    # The half of this that actually matters: the gate is worthless if it
+    # refuses real shoppers, including terse and vague-but-genuine asks.
+    for text in ["college student, budget 30000, play BGMI, need good battery",
+                 "I'm a travel content creator, need the best camera, budget 45000",
+                 "30000", "under 45k", "1 lakh", "s26", "fold 7", "gaming",
+                 "good camera", "big screen", "long battery", "cheapest galaxy",
+                 "something for my mom", "need a new phone", "I want to upgrade",
+                 "recommend me something", "value for money"]:
+        assert security.screen_user_text(text)["blocked"] is False, text
+
+
+def test_more_specific_guards_win_over_the_generic_off_topic_refusal():
+    # Off-topic is checked last on purpose: "I want an iPhone" is off-topic in
+    # a sense, but the competitor message is the useful one, and only "abuse"
+    # may ever count as a strike toward the ban.
+    assert security.screen_user_text("you are an idiot")["reason"] == "abuse"
+    assert security.screen_user_text("I want an iPhone")["reason"] == "competitor"
+    assert security.screen_user_text("samsung 11100")["reason"] == "unknown_model"
+    assert security.screen_user_text("pop up camera")["reason"] == "no_data"
 
 
 def test_screen_user_text_reason_distinguishes_abuse_from_other_blocks():

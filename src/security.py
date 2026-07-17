@@ -89,6 +89,49 @@ NO_DATA_MESSAGE = (
     "price — tell me your budget and which of those matters most, and I'll "
     "match you to a real Galaxy phone."
 )
+# Mirrors api/safety.js's RELEVANT_RE. Every other rule here is a blocklist,
+# which can never cover "what's the weather" or "write me a poem" -- those
+# matched nothing, fell through to the default weights, and were answered with
+# a phone as if understood. This one is an allowlist: a request must show at
+# least one sign of being about buying a phone. Deliberately broad, since a
+# wrongly-refused shopper is worse than a wrongly-accepted vague one.
+_RELEVANT_RE = re.compile(
+    r"\b(?:phone|mobile|smartphone|handset|device|galaxy|samsung|upgrade|buy|buying|"
+    r"purchase|recommend|recommendation|suggest|looking|need|want|budget|price|pricing|"
+    r"cost|cheap|affordable|expensive|premium|flagship|midrange|mid-range|spec|specs|"
+    r"specification|model|compare|"
+    r"camera|photo|photos|photography|selfie|selfies|video|videos|record|recording|"
+    r"shoot|shooting|reel|reels|vlog|megapixel|mp|"
+    r"game|games|gaming|gamer|bgmi|pubg|cod|fortnite|fps|performance|processor|chipset|"
+    r"snapdragon|exynos|ram|storage|speed|fast|smooth|multitask|multitasking|lag|"
+    r"battery|charge|charging|backup|mah|endurance|"
+    r"display|screen|amoled|oled|refresh|hz|inch|inches|bright|brightness|"
+    r"value|worth|money|"
+    r"student|college|creator|influencer|photographer|professional|business|consultant|"
+    r"freelancer|travel|travelling|traveling|commute|work|office|shop|owner|mom|dad|"
+    r"mother|father|parent|gift|senior|kid|teen|"
+    r"pen|stylus|note|5g|ultra|fold|flip|plus|pro|fe)\b",
+    re.IGNORECASE,
+)
+OFF_TOPIC_MESSAGE = (
+    "I'm GalaxyMatch — I only help with choosing a Samsung Galaxy phone. Tell "
+    "me your budget and what matters most (camera, gaming, battery, display or "
+    "value) and I'll find your match."
+)
+# A budget on its own ("30000", "under 45k", "1 lakh") is a complete request.
+_BUDGETISH_RE = re.compile(r"\d{3,}|\d+\s*(?:k|thousand|lakh|lac)\b", re.IGNORECASE)
+# Model tokens: s26, a57, m55, fold7, flip7.
+_MODELISH_RE = re.compile(r"\b(?:[sazmf]\s?\d{1,3}|fold\s?\d?|flip\s?\d?)\b", re.IGNORECASE)
+
+
+def looks_like_phone_request(text: str) -> bool:
+    """True if the text shows any sign of being about buying a Galaxy phone."""
+    raw = str(text or "")
+    return bool(
+        _RELEVANT_RE.search(raw) or _BUDGETISH_RE.search(raw) or _MODELISH_RE.search(raw)
+    )
+
+
 _UNKNOWN_MODEL_RE = re.compile(
     r"\b(?:samsung|galaxy)\s+(?:galaxy\s+)?[a-z]{0,5}-?\s?(\d{3,6})\b"
     r"|\bmodel(?:\s+number)?\s*[:#]?\s*[a-z]{0,5}-?\s?(\d{3,6})\b",
@@ -177,6 +220,10 @@ def screen_user_text(text: str) -> dict[str, str | bool | None]:
         }
     if _COMPETITOR_RE.search(raw):
         return {"blocked": True, "text": "", "message": SAFE_REDIRECT, "reason": "competitor"}
+    # Last: the specific rules above give a more useful message than the
+    # generic off-topic one, so this only catches what none of them recognised.
+    if not looks_like_phone_request(raw):
+        return {"blocked": True, "text": "", "message": OFF_TOPIC_MESSAGE, "reason": "off_topic"}
     return {"blocked": False, "text": redact_pii(raw), "message": "", "reason": None}
 
 
