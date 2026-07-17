@@ -177,12 +177,87 @@ function validateExplanation(text, phone) {
   return facts.filter((fact) => clean.toLowerCase().includes(String(fact).toLowerCase())).length >= 2;
 }
 
+// --- Layer 4 for the chat endpoint: validate the model's ANSWER ------------
+// validateExplanation() above checks one answer against one known phone. Chat
+// is open-ended -- the reply can name any phone, or none -- so this instead
+// checks every factual claim against the whole catalogue.
+
+// "5,000 mAh" -> "5000 mAh" so a comma'd number still gets checked rather than
+// silently skipping validation.
+function decomma(text) {
+  return text.replace(/(\d),(\d)/g, "$1$2");
+}
+
+// Numbers the catalogue actually contains, per unit. A claim of "200 MP" when
+// no phone has a 200 MP camera is an invented spec, however fluent it sounds.
+function catalogSpecValues(catalog) {
+  const known = { mp: new Set(), mah: new Set(), gb: new Set(), hz: new Set(), w: new Set(), inch: new Set() };
+  for (const p of catalog || []) {
+    if (p.camera_mp != null) known.mp.add(String(p.camera_mp));
+    if (p.battery_mah != null) known.mah.add(String(p.battery_mah));
+    if (p.ram_gb != null) known.gb.add(String(p.ram_gb));
+    if (p.storage_gb != null) known.gb.add(String(p.storage_gb));
+    if (p.refresh_rate_hz != null) known.hz.add(String(p.refresh_rate_hz));
+    if (p.charging_w != null) known.w.add(String(p.charging_w));
+    if (p.screen_size_inch != null) known.inch.add(String(p.screen_size_inch));
+  }
+  return known;
+}
+
+// Only model tokens that directly follow "Galaxy" are checked. Matching bare
+// tokens anywhere would fail on real processor names -- "Snapdragon 8 Elite
+// Gen 5" would read as a model "gen5" and reject a perfectly grounded answer.
+const GALAXY_MODEL_RE = /\bgalaxy\s+(?:z\s+)?([a-z]{1,4}\d{1,3}\+?)/gi;
+const SPEC_CLAIM_RE = /(\d+(?:\.\d+)?)[\s-]*(mp|mah|gb|hz|w|inch(?:es)?)\b/gi;
+
+function catalogModelTokens(catalog) {
+  const set = new Set();
+  for (const p of catalog || []) {
+    const tokens = String(p.model_name || "").toLowerCase().match(/\b[a-z]{1,4}\d{1,3}\+?/g) || [];
+    tokens.forEach((t) => set.add(t.replace(/\+$/, "")));
+  }
+  return set;
+}
+
+function validateChatReply(text, catalog) {
+  if (typeof text !== "string") return false;
+  const clean = text.trim();
+  if (!clean || clean.length > 1500) return false;
+  // Same output rules as validateExplanation: no competitor names, no leaking
+  // our private ranking scores, no links/markup/contact details.
+  if (COMPETITOR_RE.test(clean) || INTERNAL_SCORE_RE.test(clean)) return false;
+  if (/https?:\/\/|[\[\]{}<>]/.test(clean)) return false;
+  if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(clean)) return false;
+
+  const probe = decomma(clean);
+
+  const realModels = catalogModelTokens(catalog);
+  let match;
+  GALAXY_MODEL_RE.lastIndex = 0;
+  while ((match = GALAXY_MODEL_RE.exec(probe)) !== null) {
+    if (!realModels.has(match[1].toLowerCase().replace(/\+$/, ""))) return false; // invented phone
+  }
+
+  const known = catalogSpecValues(catalog);
+  SPEC_CLAIM_RE.lastIndex = 0;
+  while ((match = SPEC_CLAIM_RE.exec(probe)) !== null) {
+    const unit = match[2].toLowerCase().replace(/^inches$/, "inch");
+    const set = known[unit];
+    if (set && set.size && !set.has(match[1])) return false; // invented spec
+  }
+  return true;
+}
+
 module.exports = {
   redactPii,
   extractBudgetInr,
   screenUserText,
+  looksLikePhoneRequest,
   safetySettings,
   isProviderSafetyBlock,
   validateExplanation,
+  validateChatReply,
   SAFE_REDIRECT,
+  OFF_TOPIC_MESSAGE,
+  NO_DATA_MESSAGE,
 };

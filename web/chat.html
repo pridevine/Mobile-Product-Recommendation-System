@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ask GalaxyMatch — Samsung Galaxy advisor</title>
+<link rel="stylesheet" href="home.css" />
+</head>
+<body>
+
+<!-- Same slim nav as personas.html, so an interior page looks like one. -->
+<header class="page-nav">
+  <div class="page-nav-inner">
+    <nav class="nav">
+      <a class="nav-logo" href="index.html"><img src="assets/samsung_logo.png"
+        alt="Samsung" onerror="this.remove()" /><span>SAMSUNG</span></a>
+      <div class="nav-links">
+        <a href="personas.html#personas">Personas</a>
+        <a href="personas.html#describe">Describe Yourself</a>
+      </div>
+      <a class="nav-cta" href="index.html">&larr; Back</a>
+    </nav>
+  </div>
+</header>
+
+<main class="chat-wrap">
+  <div class="chat-head">
+    <h1>Ask GalaxyMatch</h1>
+    <p>Every answer is grounded in our real 20-phone Galaxy catalogue. If the data
+       doesn't cover it, it says so instead of guessing.</p>
+  </div>
+
+  <!-- aria-live so a screen reader announces replies as they arrive. -->
+  <div class="chat-log" id="chat-log" role="log" aria-live="polite" aria-label="Conversation"></div>
+
+  <div class="chat-suggest" id="chat-suggest">
+    <button class="chat-chip" type="button">Which Galaxy has the best camera under 45000?</button>
+    <button class="chat-chip" type="button">Best phone for gaming around 30k?</button>
+    <button class="chat-chip" type="button">Compare the M55 5G and the A56 5G</button>
+    <button class="chat-chip" type="button">Which one has the biggest battery?</button>
+  </div>
+
+  <form class="chat-form" id="chat-form" autocomplete="off">
+    <input id="chat-input" type="text" aria-label="Ask about Samsung Galaxy phones"
+      placeholder="Ask about any Galaxy phone, spec or budget…" maxlength="1000" />
+    <button id="chat-send" class="specular-btn" type="submit"
+      data-line-color="#ffffff" data-base-color="#4a4d54" data-proximity="260">Send</button>
+  </form>
+  <p id="chat-feedback" class="describe-feedback" role="status" aria-live="polite" hidden></p>
+</main>
+
+<p class="disclaimer">GalaxyMatch AI — a student capstone project, not an official Samsung product.</p>
+
+<script src="specular.js"></script>
+<script src="engine.js"></script>
+<script src="ai-guard.js"></script>
+<script src="chat.js"></script>
+</body>
+</html>
