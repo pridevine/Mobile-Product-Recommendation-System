@@ -13,6 +13,12 @@ const ABUSE_RE = /\b(?:fuck(?:ing|ed)?|shit(?:ty)?|bitch|asshole|bastard|dumbass
 // what the rest of the message says.
 const SLUR_RE = /\b(?:n[i1]gg(?:er|a|ers|as)?|f[a4]gg?[o0]t|ch[i1]nk|sp[i1]c|wetback|g[o0]{2}k|k[i1]ke|c[o0]{2}n|r[e3]t[a4]rd(?:ed)?|tr[a4]nny|p[a4]ki)\b/i;
 const THREAT_RE = /\b(?:kill|hurt|attack|bomb|shoot)\s+(?:you|yourself|me|someone|people)\b/i;
+// Real catalogue model numbers are always 1-2 digits (S26, A57, Fold7) -- a
+// 3+ digit number right after "samsung"/"galaxy"/"model" (e.g. "samsung
+// 11100") can't be real, so say so instead of quietly recommending an
+// unrelated phone. Adjacency is deliberately tight so this never fires on an
+// ordinary budget mention like "galaxy phone under 30000".
+const UNKNOWN_MODEL_RE = /\b(?:samsung|galaxy)\s+(?:galaxy\s+)?[a-z]{0,5}-?\s?(\d{3,6})\b|\bmodel(?:\s+number)?\s*[:#]?\s*[a-z]{0,5}-?\s?(\d{3,6})\b/i;
 
 const COMPETITOR_RE = /\b(?:iphone|apple|pixel|google pixel|oneplus|xiaomi|redmi|oppo|vivo|realme)\b/i;
 const INTERNAL_SCORE_RE = /(?:match\s+score|\bscore\b|out\s+of\s+10|\/\s*10)/i;
@@ -55,6 +61,14 @@ function screenUserText(value) {
   }
   if (ABUSE_RE.test(raw) || SLUR_RE.test(raw) || THREAT_RE.test(raw)) {
     return { blocked: true, text: "", message: SAFE_REDIRECT, reason: "abuse" };
+  }
+  if (UNKNOWN_MODEL_RE.test(raw)) {
+    return {
+      blocked: true,
+      text: "",
+      message: "We couldn't find that model in our Samsung Galaxy lineup. Tell me your budget and priorities instead — camera, gaming, battery, display, or value — and I'll match you to a real Galaxy phone.",
+      reason: "unknown_model",
+    };
   }
   // Block before the Gemini call, not after: without this, "recommend me an
   // iPhone" reaches the model, which infers weights from whatever it can and

@@ -46,6 +46,23 @@ def test_screen_user_text_blocks_slurs_before_they_ever_reach_the_recommender():
         assert result["blocked"] is False, text
 
 
+def test_screen_user_text_blocks_nonexistent_model_numbers():
+    # Reported live: "samsung 11100" (not a real model) fell through every
+    # existing check and still returned a normal, unrelated recommendation.
+    # Real catalogue numbers are always 1-2 digits (S26, A57, Fold7).
+    for text in ["is there a samsung 11100 model", "does galaxy 99999 exist",
+                 "looking for model number 45892"]:
+        result = security.screen_user_text(text)
+        assert result["blocked"] is True, text
+        assert result["reason"] == "unknown_model", text
+    # Ordinary mentions of a real model or a budget near "galaxy" must not
+    # false-positive.
+    for text in ["I want the Galaxy S26 Ultra", "best galaxy phone under 30000",
+                 "college student, budget 30000, play BGMI"]:
+        result = security.screen_user_text(text)
+        assert result["blocked"] is False, text
+
+
 def test_screen_user_text_reason_distinguishes_abuse_from_other_blocks():
     # Callers use `reason` to decide whether a block counts as a strike
     # toward the 24h abuse ban -- only "abuse" should ever count. Getting

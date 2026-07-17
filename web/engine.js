@@ -89,10 +89,24 @@ const ABUSE_RE = /\b(?:fuck(?:ing|ed)?|shit(?:ty)?|bitch|asshole|bastard|dumbass
 // the message says.
 const SLUR_RE = /\b(?:n[i1]gg(?:er|a|ers|as)?|f[a4]gg?[o0]t|ch[i1]nk|sp[i1]c|wetback|g[o0]{2}k|k[i1]ke|c[o0]{2}n|r[e3]t[a4]rd(?:ed)?|tr[a4]nny|p[a4]ki)\b/i;
 const THREAT_RE = /\b(?:kill|hurt|attack|bomb|shoot)\s+(?:you|yourself|me|someone|people)\b/i;
+// Mirrors api/safety.js's UNKNOWN_MODEL_RE. Real catalogue model numbers are
+// always 1-2 digits (S26, A57, Fold7) -- a 3+ digit number right after
+// "samsung"/"galaxy"/"model" (e.g. "samsung 11100") can't be a real model, so
+// say so instead of quietly recommending an unrelated phone. Adjacency is
+// deliberately tight (no free-floating phrase like "phone under") so this
+// never fires on an ordinary budget mention such as "galaxy phone under 30000".
+const UNKNOWN_MODEL_RE = /\b(?:samsung|galaxy)\s+(?:galaxy\s+)?[a-z]{0,5}-?\s?(\d{3,6})\b|\bmodel(?:\s+number)?\s*[:#]?\s*[a-z]{0,5}-?\s?(\d{3,6})\b/i;
+// Real S Pen support in this catalogue: the Ultra tier (built-in) and Z Fold
+// (compatible, sold separately) -- matches actual Samsung product lines, not
+// a guess. Flip and A/M/F series don't support it.
+const SPEN_RE = /\bs[\s-]?pen\b/i;
+const SPEN_MODELS_RE = /\bultra\b|\bfold\d*\b/i;
 const SAMSUNG_ONLY_MESSAGE =
   "We provide recommendations for Samsung Galaxy phones only. Tell me your budget and what matters most — camera, gaming, battery, display, or value.";
 const SAFE_REDIRECT_MESSAGE =
   "I can help you choose a Samsung Galaxy phone. Tell me your budget and what matters most, such as camera, gaming, battery, display, or value.";
+const UNKNOWN_MODEL_MESSAGE =
+  "We couldn't find that model in our Samsung Galaxy lineup. Tell me your budget and priorities instead — camera, gaming, battery, display, or value — and I'll match you to a real Galaxy phone.";
 
 // `reason` mirrors api/safety.js's contract: only "abuse" should ever count
 // as a strike toward AIGuard's warn-then-restrict escalation.
@@ -100,6 +114,9 @@ function screenQuery(text) {
   const raw = String(text || "");
   if (ABUSE_RE.test(raw) || SLUR_RE.test(raw) || THREAT_RE.test(raw)) {
     return { blocked: true, message: SAFE_REDIRECT_MESSAGE, reason: "abuse" };
+  }
+  if (UNKNOWN_MODEL_RE.test(raw)) {
+    return { blocked: true, message: UNKNOWN_MODEL_MESSAGE, reason: "unknown_model" };
   }
   if (COMPETITOR_RE.test(raw)) {
     return { blocked: true, message: SAMSUNG_ONLY_MESSAGE, reason: "competitor" };

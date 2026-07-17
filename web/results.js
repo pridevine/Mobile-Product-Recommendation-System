@@ -2,7 +2,7 @@
    Reads the choice from the URL (?persona=riya or ?q=<free text>) so
    results stay shareable. Re-renders (and re-inits the deck) on chip switch. */
 
-let state = { weights: null, budget: [0, 1e9], personaId: null, label: "" };
+let state = { weights: null, budget: [0, 1e9], personaId: null, label: "", requireSPen: false };
 let deck = null; // active CardSwap instance
 
 const RESULT_SUBS = [["camera_score", "Camera"], ["performance_score", "Performance"],
@@ -37,8 +37,12 @@ function readParams() {
       }
       prefs = extractPreferences(q);
     }
+    // Checked on the raw query independent of where prefs came from (server
+    // AI parse or local extraction) -- neither path carries a "requires S
+    // Pen" concept, and this is a hard filter, not a weight to infer.
+    const requireSPen = SPEN_RE.test(q);
     return { weights: prefs.weights, budget: [prefs.budget_min, prefs.budget_max],
-      personaId: null, label: "Based on your description" };
+      personaId: null, label: "Based on your description", requireSPen };
   }
   // Track PERSONAS rather than hardcoding an id — a stale hardcoded "arjun"
   // is exactly what left the notebook dropdown throwing TraitError for two days
@@ -46,7 +50,7 @@ function readParams() {
   const id = persona && PERSONAS[persona] ? persona : Object.keys(PERSONAS)[0];
   const p = PERSONAS[id];
   return { weights: p.weights, budget: [p.budget_min, p.budget_max],
-    personaId: id, label: `For ${p.name} — ${p.need}` };
+    personaId: id, label: `For ${p.name} — ${p.need}`, requireSPen: false };
 }
 
 function inr(n) { return "₹" + n.toLocaleString("en-IN"); }
@@ -147,9 +151,15 @@ function deckCard(rank, p) {
 
 function paint() {
   const [bmin, bmax] = state.budget;
-  const top3 = rankResults(recommend(state.weights, bmin, bmax, PHONES), 3);
+  // A hard filter, not a weight: "with S Pen" narrows the candidate pool to
+  // the Ultra/Fold tiers (the only real S Pen-capable models in the
+  // catalogue) before ranking, rather than hoping a heavier weight happens
+  // to surface one.
+  const candidates = state.requireSPen ? PHONES.filter(p => SPEN_MODELS_RE.test(p.model_name)) : PHONES;
+  const top3 = rankResults(recommend(state.weights, bmin, bmax, candidates), 3);
 
-  document.getElementById("matches-sub").textContent = state.label;
+  document.getElementById("matches-sub").textContent =
+    state.requireSPen ? `${state.label} · S Pen models only` : state.label;
 
   const list = document.getElementById("rec-list");
   list.innerHTML = top3.map((p, i) => recRow(i, p)).join("");
@@ -204,7 +214,7 @@ function renderChips() {
   host.querySelectorAll(".chip").forEach(chip => chip.addEventListener("click", () => {
     const id = chip.dataset.id, p = PERSONAS[id];
     state = { weights: p.weights, budget: [p.budget_min, p.budget_max],
-      personaId: id, label: `For ${p.name} — ${p.need}` };
+      personaId: id, label: `For ${p.name} — ${p.need}`, requireSPen: false };
     history.replaceState(null, "", `?persona=${id}`);
     host.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.id === id));
     paint();

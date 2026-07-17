@@ -48,6 +48,17 @@ _COMPETITOR_RE = re.compile(
     r"\b(?:iphone|apple|pixel|google pixel|oneplus|xiaomi|redmi|oppo|vivo|realme)\b",
     re.IGNORECASE,
 )
+# Mirrors api/safety.js's UNKNOWN_MODEL_RE. Real catalogue model numbers are
+# always 1-2 digits (S26, A57, Fold7) -- a 3+ digit number right after
+# "samsung"/"galaxy"/"model" (e.g. "samsung 11100") can't be real, so say so
+# instead of quietly recommending an unrelated phone. Adjacency is
+# deliberately tight so this never fires on an ordinary budget mention like
+# "galaxy phone under 30000".
+_UNKNOWN_MODEL_RE = re.compile(
+    r"\b(?:samsung|galaxy)\s+(?:galaxy\s+)?[a-z]{0,5}-?\s?(\d{3,6})\b"
+    r"|\bmodel(?:\s+number)?\s*[:#]?\s*[a-z]{0,5}-?\s?(\d{3,6})\b",
+    re.IGNORECASE,
+)
 
 
 def get_secret(name: str) -> str | None:
@@ -116,6 +127,17 @@ def screen_user_text(text: str) -> dict[str, str | bool | None]:
         }
     if _ABUSE_RE.search(raw) or _SLUR_RE.search(raw) or _THREAT_RE.search(raw):
         return {"blocked": True, "text": "", "message": SAFE_REDIRECT, "reason": "abuse"}
+    if _UNKNOWN_MODEL_RE.search(raw):
+        return {
+            "blocked": True,
+            "text": "",
+            "message": (
+                "We couldn't find that model in our Samsung Galaxy lineup. Tell me "
+                "your budget and priorities instead — camera, gaming, battery, "
+                "display, or value — and I'll match you to a real Galaxy phone."
+            ),
+            "reason": "unknown_model",
+        }
     if _COMPETITOR_RE.search(raw):
         return {"blocked": True, "text": "", "message": SAFE_REDIRECT, "reason": "competitor"}
     return {"blocked": False, "text": redact_pii(raw), "message": "", "reason": None}
