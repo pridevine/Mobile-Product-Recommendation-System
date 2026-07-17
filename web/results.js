@@ -122,7 +122,7 @@ function recRow(rank, p) {
         <span class="rec-pct">${p.match_pct}%</span>
         <a class="rec-shop" href="${phoneShopUrl(p)}" target="_blank" rel="noopener noreferrer"
            aria-label="View ${p.model_name} on Samsung.com" title="View on Samsung.com"
-           onclick="event.stopPropagation()">🛍</a>
+           onclick="event.stopPropagation()">Shop</a>
       </div>
       <div class="rec-meta">
         <span><b>${inr(p.price_inr)}</b></span>
@@ -152,7 +152,7 @@ function deckCard(rank, p) {
       <span class="csc-select">Select ${p.model_name.replace("Galaxy ", "")}</span>
       <a class="csc-shop" href="${phoneShopUrl(p)}" target="_blank" rel="noopener noreferrer"
          aria-label="View ${p.model_name} on Samsung.com" title="View on Samsung.com"
-         onclick="event.stopPropagation()">🛍</a>
+         onclick="event.stopPropagation()">Shop</a>
     </div>
   </div>`;
 }
