@@ -76,6 +76,26 @@ def test_abuse_screening_does_not_block_ordinary_shopper_language():
         assert security.screen_user_text(text)["blocked"] is False, text
 
 
+def test_asking_for_hardware_the_catalogue_has_no_column_for_returns_no_data():
+    # phones.csv has camera_mp but nothing about the camera's mechanism, no
+    # headphone jack / SD slot / IP rating columns at all. Reported live:
+    # "pop up camera" matched the "camera" keyword, scored as a camera
+    # request, and confidently returned an A56 -- answering a question the
+    # data cannot answer. These must say so instead.
+    for text in ["pop up camera", "under display camera", "phone with headphone jack",
+                 "need sd card slot", "wireless charging phone", "waterproof phone ip68",
+                 "fingerprint sensor", "telephoto lens"]:
+        result = security.screen_user_text(text)
+        assert result["blocked"] is True, text
+        assert result["reason"] == "no_data", text
+
+    # ...without swallowing the specs the catalogue genuinely has.
+    for text in ["best camera phone under 45000", "108mp camera phone",
+                 "fast charging phone budget 30000", "big display 120hz",
+                 "phone with s pen"]:
+        assert security.screen_user_text(text)["blocked"] is False, text
+
+
 def test_screen_user_text_reason_distinguishes_abuse_from_other_blocks():
     # Callers use `reason` to decide whether a block counts as a strike
     # toward the 24h abuse ban -- only "abuse" should ever count. Getting

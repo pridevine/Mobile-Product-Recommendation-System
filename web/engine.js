@@ -96,6 +96,10 @@ const THREAT_RE = /\b(?:kill|hurt|attack|bomb|shoot)\s+(?:you|yourself|me|someon
 // deliberately tight (no free-floating phrase like "phone under") so this
 // never fires on an ordinary budget mention such as "galaxy phone under 30000".
 const UNKNOWN_MODEL_RE = /\b(?:samsung|galaxy)\s+(?:galaxy\s+)?[a-z]{0,5}-?\s?(\d{3,6})\b|\bmodel(?:\s+number)?\s*[:#]?\s*[a-z]{0,5}-?\s?(\d{3,6})\b/i;
+// Mirrors api/safety.js's UNSUPPORTED_FEATURE_RE -- hardware phones.csv has
+// no column for. Checked before KEYWORDS below, since "pop up camera"
+// contains "camera" and would otherwise be scored as a camera request.
+const UNSUPPORTED_FEATURE_RE = /\b(?:pop[\s-]?up|under[\s-]?display|in[\s-]?display|punch[\s-]?hole|periscope|telephoto)\b[\s\w]{0,10}\b(?:camera|selfie|lens|zoom)\b|\boptical\s+zoom\b|\b(?:headphone|audio|3\.5\s?mm)\s*jack\b|\b(?:micro\s?sd|sd\s+card|memory\s+card|expandable\s+storage)\b|\bir\s+blaster\b|\b(?:wireless|reverse)\s+charg(?:ing|er)\b|\b(?:water[\s-]?proof|water[\s-]?resistant|ip6[78])\b|\bgorilla\s+glass\b|\b(?:fingerprint|face\s+unlock|iris\s+scanner)\b|\be[\s-]?sim\b|\bdual\s+sim\b|\b(?:stereo\s+speakers?|dolby)\b|\bsatellite\b/i;
 // Real S Pen support in this catalogue: the Ultra tier (built-in) and Z Fold
 // (compatible, sold separately) -- matches actual Samsung product lines, not
 // a guess. Flip and A/M/F series don't support it.
@@ -128,6 +132,8 @@ const SAFE_REDIRECT_MESSAGE =
   "I can help you choose a Samsung Galaxy phone. Tell me your budget and what matters most, such as camera, gaming, battery, display, or value.";
 const UNKNOWN_MODEL_MESSAGE =
   "We couldn't find that model in our Samsung Galaxy lineup. Tell me your budget and priorities instead — camera, gaming, battery, display, or value — and I'll match you to a real Galaxy phone.";
+const NO_DATA_MESSAGE =
+  "I don't have specification data for that. Our catalogue covers camera megapixels, processor, RAM, storage, battery, display, charging speed and price — tell me your budget and which of those matters most, and I'll match you to a real Galaxy phone.";
 
 // `reason` mirrors api/safety.js's contract: only "abuse" should ever count
 // as a strike toward AIGuard's warn-then-restrict escalation.
@@ -135,6 +141,9 @@ function screenQuery(text) {
   const raw = String(text || "");
   if (ABUSE_RE.test(raw) || SLUR_RE.test(raw) || THREAT_RE.test(raw)) {
     return { blocked: true, message: SAFE_REDIRECT_MESSAGE, reason: "abuse" };
+  }
+  if (UNSUPPORTED_FEATURE_RE.test(raw)) {
+    return { blocked: true, message: NO_DATA_MESSAGE, reason: "no_data" };
   }
   if (UNKNOWN_MODEL_RE.test(raw)) {
     return { blocked: true, message: UNKNOWN_MODEL_MESSAGE, reason: "unknown_model" };

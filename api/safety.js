@@ -23,6 +23,18 @@ const THREAT_RE = /\b(?:kill|hurt|attack|bomb|shoot)\s+(?:you|yourself|me|someon
 // ordinary budget mention like "galaxy phone under 30000".
 const UNKNOWN_MODEL_RE = /\b(?:samsung|galaxy)\s+(?:galaxy\s+)?[a-z]{0,5}-?\s?(\d{3,6})\b|\bmodel(?:\s+number)?\s*[:#]?\s*[a-z]{0,5}-?\s?(\d{3,6})\b/i;
 
+// Hardware the catalogue has no column for. phones.csv knows: processor,
+// ram_gb, storage_gb, camera_mp, battery_mah, screen_size_inch, display_type,
+// refresh_rate_hz, charging_w, os_support_years, price_inr. It does NOT know
+// whether a phone has a pop-up camera, a headphone jack, an SD slot, an IP
+// rating and so on -- so asking about those must return "no data", not a
+// phone. Checked before the keyword pass, because "pop up camera" contains
+// "camera" and would otherwise score as a camera request and confidently
+// return an unrelated model.
+const UNSUPPORTED_FEATURE_RE = /\b(?:pop[\s-]?up|under[\s-]?display|in[\s-]?display|punch[\s-]?hole|periscope|telephoto)\b[\s\w]{0,10}\b(?:camera|selfie|lens|zoom)\b|\boptical\s+zoom\b|\b(?:headphone|audio|3\.5\s?mm)\s*jack\b|\b(?:micro\s?sd|sd\s+card|memory\s+card|expandable\s+storage)\b|\bir\s+blaster\b|\b(?:wireless|reverse)\s+charg(?:ing|er)\b|\b(?:water[\s-]?proof|water[\s-]?resistant|ip6[78])\b|\bgorilla\s+glass\b|\b(?:fingerprint|face\s+unlock|iris\s+scanner)\b|\be[\s-]?sim\b|\bdual\s+sim\b|\b(?:stereo\s+speakers?|dolby)\b|\bsatellite\b/i;
+const NO_DATA_MESSAGE =
+  "I don't have specification data for that. Our catalogue covers camera megapixels, processor, RAM, storage, battery, display, charging speed and price — tell me your budget and which of those matters most, and I'll match you to a real Galaxy phone.";
+
 const COMPETITOR_RE = /\b(?:iphone|apple|pixel|google pixel|oneplus|xiaomi|redmi|oppo|vivo|realme)\b/i;
 const INTERNAL_SCORE_RE = /(?:match\s+score|\bscore\b|out\s+of\s+10|\/\s*10)/i;
 
@@ -64,6 +76,9 @@ function screenUserText(value) {
   }
   if (ABUSE_RE.test(raw) || SLUR_RE.test(raw) || THREAT_RE.test(raw)) {
     return { blocked: true, text: "", message: SAFE_REDIRECT, reason: "abuse" };
+  }
+  if (UNSUPPORTED_FEATURE_RE.test(raw)) {
+    return { blocked: true, text: "", message: NO_DATA_MESSAGE, reason: "no_data" };
   }
   if (UNKNOWN_MODEL_RE.test(raw)) {
     return {
