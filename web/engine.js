@@ -142,8 +142,15 @@ const OFF_TOPIC_MESSAGE =
 const RELEVANT_RE = /\b(?:phone|mobile|smartphone|handset|device|galaxy|samsung|upgrade|buy|buying|purchase|recommend|recommendation|suggest|looking|need|want|budget|price|pricing|cost|cheap|affordable|expensive|premium|flagship|midrange|mid-range|spec|specs|specification|model|compare|camera|photo|photos|photography|selfie|selfies|video|videos|record|recording|shoot|shooting|reel|reels|vlog|megapixel|mp|game|games|gaming|gamer|bgmi|pubg|cod|fortnite|fps|performance|processor|chipset|snapdragon|exynos|ram|storage|speed|fast|smooth|multitask|multitasking|lag|battery|charge|charging|backup|mah|endurance|display|screen|amoled|oled|refresh|hz|inch|inches|bright|brightness|value|worth|money|student|college|creator|influencer|photographer|professional|business|consultant|freelancer|travel|travelling|traveling|commute|work|office|shop|owner|mom|dad|mother|father|parent|gift|senior|kid|teen|pen|stylus|note|5g|ultra|fold|flip|plus|pro|fe)\b/i;
 const BUDGETISH_RE = /\d{3,}|\d+\s*(?:k|thousand|lakh|lac)\b/i;
 const MODELISH_RE = /\b(?:[sazmf]\s?\d{1,3}|fold\s?\d?|flip\s?\d?)\b/i;
+// Contact details are stripped before judging relevance: the digits in an
+// email ("akhilan576@gmail.com") otherwise read as a budget, so a bare email
+// looked like a valid request and came back with an arbitrary phone. Mirrors
+// the same strip in api/safety.js's looksLikePhoneRequest().
+const EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+const PHONE_NUM_RE = /(?:\+?\d[\d .()\-]{7,}\d)/g;
 function looksLikePhoneRequest(text) {
-  return RELEVANT_RE.test(text) || BUDGETISH_RE.test(text) || MODELISH_RE.test(text);
+  const probe = String(text || "").replace(EMAIL_RE, " ").replace(PHONE_NUM_RE, " ");
+  return RELEVANT_RE.test(probe) || BUDGETISH_RE.test(probe) || MODELISH_RE.test(probe);
 }
 
 // `reason` mirrors api/safety.js's contract: only "abuse" should ever count

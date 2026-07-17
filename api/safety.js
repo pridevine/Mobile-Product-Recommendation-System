@@ -56,8 +56,16 @@ const BUDGETISH_RE = /\d{3,}|\d+\s*(?:k|thousand|lakh|lac)\b/i;
 // Model tokens: s26, a57, m55, fold7, flip7.
 const MODELISH_RE = /\b(?:[sazmf]\s?\d{1,3}|fold\s?\d?|flip\s?\d?)\b/i;
 
+// Contact details are stripped first: the digits in an email or phone number
+// ("akhilan576@gmail.com") otherwise read as a budget, so a bare email looked
+// like a valid request and came back with an arbitrary phone. The redaction
+// placeholders go too -- "[phone removed]" contains the word "phone", which
+// would smuggle the same input straight back through.
 function looksLikePhoneRequest(text) {
-  return RELEVANT_RE.test(text) || BUDGETISH_RE.test(text) || MODELISH_RE.test(text);
+  const probe = redactPii(String(text || ""))
+    .replace("[email removed]", " ")
+    .replace("[phone removed]", " ");
+  return RELEVANT_RE.test(probe) || BUDGETISH_RE.test(probe) || MODELISH_RE.test(probe);
 }
 
 const COMPETITOR_RE = /\b(?:iphone|apple|pixel|google pixel|oneplus|xiaomi|redmi|oppo|vivo|realme)\b/i;

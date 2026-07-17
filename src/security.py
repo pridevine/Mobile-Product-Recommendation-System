@@ -125,10 +125,20 @@ _MODELISH_RE = re.compile(r"\b(?:[sazmf]\s?\d{1,3}|fold\s?\d?|flip\s?\d?)\b", re
 
 
 def looks_like_phone_request(text: str) -> bool:
-    """True if the text shows any sign of being about buying a Galaxy phone."""
-    raw = str(text or "")
+    """True if the text shows any sign of being about buying a Galaxy phone.
+
+    Contact details are stripped first: the digits in an email or phone number
+    ("akhilan576@gmail.com") otherwise read as a budget, so a bare email looked
+    like a valid request and came back with an arbitrary phone. The redaction
+    placeholders are stripped too -- "[phone removed]" contains the word
+    "phone", which would smuggle the same input back through.
+    """
+    probe = redact_pii(str(text or ""))
+    probe = probe.replace("[email removed]", " ").replace("[phone removed]", " ")
     return bool(
-        _RELEVANT_RE.search(raw) or _BUDGETISH_RE.search(raw) or _MODELISH_RE.search(raw)
+        _RELEVANT_RE.search(probe)
+        or _BUDGETISH_RE.search(probe)
+        or _MODELISH_RE.search(probe)
     )
 
 

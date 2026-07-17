@@ -128,6 +128,26 @@ def test_off_topic_requests_are_refused_without_refusing_real_shoppers():
         assert security.screen_user_text(text)["blocked"] is False, text
 
 
+def test_contact_details_alone_are_not_a_phone_request():
+    # Reported live: entering an email returned an arbitrary phone. The digits
+    # in "akhilan576@gmail.com" read as a budget, so the relevance gate let it
+    # through, PII redaction blanked it to "[email removed]", and the model
+    # then had nothing to work with and fell back to default weights.
+    for text in ["akhilan576@gmail.com", "riya1998@gmail.com", "9876543210",
+                 "call me at 9876543210", "+91 98765 43210"]:
+        result = security.screen_user_text(text)
+        assert result["blocked"] is True, text
+        assert result["reason"] == "off_topic", text
+
+    # But contact details alongside a real request must not block it -- and the
+    # contact details must still be redacted before any model sees them.
+    result = security.screen_user_text("riya1998@gmail.com, budget 30000")
+    assert result["blocked"] is False
+    assert "@" not in result["text"]
+    # The year in the email must not be mistaken for the budget.
+    assert security.extract_budget_inr(result["text"]) == 30000
+
+
 def test_more_specific_guards_win_over_the_generic_off_topic_refusal():
     # Off-topic is checked last on purpose: "I want an iPhone" is off-topic in
     # a sense, but the competitor message is the useful one, and only "abuse"
