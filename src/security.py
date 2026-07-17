@@ -65,8 +65,11 @@ _COMPETITOR_RE = re.compile(
 # before the keyword pass -- "pop up camera" contains "camera" and would
 # otherwise be scored as a camera request.
 _UNSUPPORTED_FEATURE_RE = re.compile(
-    r"\b(?:pop[\s-]?up|under[\s-]?display|in[\s-]?display|punch[\s-]?hole|periscope|telephoto)\b"
-    r"[\s\w]{0,10}\b(?:camera|selfie|lens|zoom)\b"
+    # Standalone: "pop up" alone is already a camera-mechanism ask. "in-display"
+    # needs its hyphen -- bare "in display" occurs in ordinary sentences such as
+    # "interested in display quality", which must still resolve normally.
+    r"\b(?:pop[\s-]?up|under[\s-]?display|punch[\s-]?hole|periscope|telephoto)\b"
+    r"|\bin-display\b"
     r"|\boptical\s+zoom\b"
     r"|\b(?:headphone|audio|3\.5\s?mm)\s*jack\b"
     r"|\b(?:micro\s?sd|sd\s+card|memory\s+card|expandable\s+storage)\b"

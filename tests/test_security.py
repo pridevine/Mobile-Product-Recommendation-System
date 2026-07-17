@@ -82,17 +82,22 @@ def test_asking_for_hardware_the_catalogue_has_no_column_for_returns_no_data():
     # "pop up camera" matched the "camera" keyword, scored as a camera
     # request, and confidently returned an A56 -- answering a question the
     # data cannot answer. These must say so instead.
-    for text in ["pop up camera", "under display camera", "phone with headphone jack",
-                 "need sd card slot", "wireless charging phone", "waterproof phone ip68",
-                 "fingerprint sensor", "telephoto lens"]:
+    # The mechanism terms must match on their own: requiring the word "camera"
+    # after them meant a bare "pop up" still returned a confident match.
+    for text in ["pop up", "popup", "pop-up", "i want pop up", "pop up camera",
+                 "under display camera", "punch hole", "periscope", "telephoto",
+                 "in-display fingerprint", "phone with headphone jack",
+                 "need sd card slot", "wireless charging phone",
+                 "waterproof phone ip68", "fingerprint sensor"]:
         result = security.screen_user_text(text)
         assert result["blocked"] is True, text
         assert result["reason"] == "no_data", text
 
-    # ...without swallowing the specs the catalogue genuinely has.
+    # ...without swallowing the specs the catalogue genuinely has. "in display"
+    # unhyphenated is ordinary English and must not trip the in-display rule.
     for text in ["best camera phone under 45000", "108mp camera phone",
                  "fast charging phone budget 30000", "big display 120hz",
-                 "phone with s pen"]:
+                 "phone with s pen", "interested in display quality, budget 40000"]:
         assert security.screen_user_text(text)["blocked"] is False, text
 
 
