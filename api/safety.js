@@ -7,7 +7,7 @@ const SAFE_REDIRECT =
 // Keep this intentionally conservative. The model should handle ordinary
 // frustration, while clearly abusive/threatening input is stopped before it
 // reaches the provider. We do not log or echo the matched text.
-const ABUSE_RE = /\b(?:fuck(?:ing|ed)?|shit(?:ty)?|bitch|asshole|dumbass|idiot|moron|stupid)\b/i;
+const ABUSE_RE = /\b(?:fuck(?:ing|ed)?|shit(?:ty)?|bitch|asshole|bastard|dumbass|idiot|moron|stupid|dumb|loser|pathetic|jerk|trash|garbage|useless|worthless|suck(?:s|ed)?)\b|\bshut\s+up\b|\bscrew\s+you\b/i;
 const THREAT_RE = /\b(?:kill|hurt|attack|bomb|shoot)\s+(?:you|yourself|me|someone|people)\b/i;
 
 const COMPETITOR_RE = /\b(?:iphone|apple|pixel|google pixel|oneplus|xiaomi|redmi|oppo|vivo|realme)\b/i;

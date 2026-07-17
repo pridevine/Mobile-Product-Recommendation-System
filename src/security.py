@@ -23,7 +23,9 @@ SAFE_REDIRECT = (
     "what matters most, such as camera, gaming, battery, display, or value."
 )
 _ABUSE_RE = re.compile(
-    r"\b(?:fuck(?:ing|ed)?|shit(?:ty)?|bitch|asshole|dumbass|idiot|moron|stupid)\b",
+    r"\b(?:fuck(?:ing|ed)?|shit(?:ty)?|bitch|asshole|bastard|dumbass|idiot|moron|stupid|"
+    r"dumb|loser|pathetic|jerk|trash|garbage|useless|worthless|suck(?:s|ed)?)\b"
+    r"|\bshut\s+up\b|\bscrew\s+you\b",
     re.IGNORECASE,
 )
 _THREAT_RE = re.compile(

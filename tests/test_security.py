@@ -21,6 +21,16 @@ def test_screen_user_text_blocks_abuse_without_echoing_it():
     assert result["text"] == ""
 
 
+def test_screen_user_text_catches_mild_insults_not_just_slurs():
+    # "idiot"/"stupid" were always caught; these softer, more common putdowns
+    # were not until the word list was widened on explicit request.
+    for text in ["this app is so dumb", "you're useless", "what a pathetic bot",
+                 "this is trash", "it sucks", "shut up already"]:
+        result = security.screen_user_text(text)
+        assert result["blocked"] is True, text
+        assert result["reason"] == "abuse", text
+
+
 def test_screen_user_text_reason_distinguishes_abuse_from_other_blocks():
     # Callers use `reason` to decide whether a block counts as a strike
     # toward the 24h abuse ban -- only "abuse" should ever count. Getting
