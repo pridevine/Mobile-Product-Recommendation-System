@@ -1,0 +1,18 @@
+name: galaxymatch
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pandas
+  - numpy
+  - matplotlib
+  - jupyterlab
+  - ipywidgets
+  - python-dotenv
+  - requests
+  - pytest
+  - pip
+  - pip:
+      # Not on conda-forge; without it `from google import genai` fails and
+      # every AI feature silently falls back to the rule-based templates.
+      - google-genai

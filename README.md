@@ -1,101 +1,109 @@
-# GalaxyMatch AI
+# GalaxyMatch AI — Samsung Galaxy Recommendation System
 
-GalaxyMatch AI recommends a Samsung Galaxy phone from a 20-phone catalogue (`data/phones.csv`), scoring each candidate on 5 weighted dimensions — camera, performance, battery, display, value — via a transparent weighted sum. There's no black box: every recommendation ships with a per-dimension score breakdown.
+A capstone project: an AI shopping assistant that recommends the right Samsung
+Galaxy phone using a transparent weighted-sum model (camera / performance /
+battery / display / value), with Gemini-powered explanations layered on top.
 
-**Live site:** [galaxymatch-five.vercel.app](https://galaxymatch-five.vercel.app)
+Two deliverables live in this repo:
 
----
+| Part | Where | What |
+|------|-------|------|
+| Jupyter notebook app | `notebooks/`, `src/`, `data/` | The graded Anaconda/Jupyter deliverable — data pipeline, recommender, personas, Gemini explanations, ipywidgets UI |
+| Web app | `web/` | Static site (deployable to Vercel) — dark hero landing page + results page running the same engine ported to JavaScript |
 
-## Table of contents
+## Getting started on a fresh machine
 
-- [Overview](#overview)
-- [Interfaces](#interfaces)
-- [Architecture](#architecture)
-- [Tech stack](#tech-stack)
-- [Guardrails](#guardrails)
-- [Approaches we considered and rejected](#approaches-we-considered-and-rejected)
-- [Challenges and fixes](#challenges-and-fixes)
-- [Testing](#testing)
-
----
-
-## Overview
-
-The core idea: filter Samsung Galaxy phones by budget, rank the remaining candidates with a weighted sum across 5 dimensions, then use Gemini to explain the top result in natural language — grounded in that phone's real specs, not invented ones.
-
-## Interfaces
-
-There are two front ends built on the same underlying engine:
-
-| Interface | Description |
-|---|---|
-| **Jupyter notebook** (graded deliverable) | ipywidgets UI with a persona picker, a free-text input box, live weight sliders, and a direct call to Gemini. |
-| **Live website** | Static HTML/CSS/JS hosted on Vercel. The results page and the free-text box both call Gemini live, routed through Vercel serverless functions (`api/explain.js`, `api/parse.js`) so the API key never reaches the browser. |
-
-## Architecture
-
-This is a retrieval-augmented generation (RAG) pipeline, implemented twice — once in Python for the notebook, once in JavaScript for the website — and kept in sync by hand. Both implementations follow the same 4 steps:
-
-```mermaid
-flowchart LR
-    A["1 · Query
-    Persona weights or
-    free-text extraction"] --> B["2 · Retrieve
-    Filter by budget,
-    rank by weighted sum"]
-    B --> C["3 · Build
-    Inject retrieved phone's
-    real specs into the prompt
-    (kept separate from our
-    internal ranking scores)"]
-    C --> D["4 · Generate
-    Gemini gemini-3.5-flash
-    (falls back to
-    gemini-3-flash-preview
-    on overload/quota errors)"]
+```bash
+git clone https://github.com/pridevine/Mobile-Product-Recommendation-System.git
+cd Mobile-Product-Recommendation-System
+git checkout member3-ui
 ```
 
-**Step-by-step:**
+### Run the web app (no installs needed)
 
-1. **Query** — Convert the user's input (a chosen persona, or free text) into dimension weights.
-2. **Retrieve** — Filter the catalogue by budget, then rank remaining phones by the weighted sum.
-3. **Build** — Format the top-ranked phone's real specs into the Gemini prompt, kept labelled separately from the app's own internal ranking scores.
-4. **Generate** — Call Gemini (`gemini-3.5-flash`, with automatic fallback to `gemini-3-flash-preview` on overload or quota errors) to produce the explanation.
+Any static file server works. With Python:
 
-## Tech stack
+```bash
+cd web
+python -m http.server 8080
+# open http://127.0.0.1:8080/
+```
 
-- **Notebook:** Python 3.11, pandas, Jupyter/ipywidgets, `google-genai` SDK
-- **Website:** Vanilla HTML/CSS/JS — no framework, no build step — plus GSAP and Lenis
-- **API layer:** Vercel serverless functions (Node)
-- **Testing:** pytest, 17 tests
-- **Hosting:** Vercel (site), GitHub (code)
+Everything the site needs (fonts, images, data, JS) is inside `web/` — no
+build step, no npm.
 
-## Guardrails
+### Deploy the web app with live Gemini explanations
 
-- Free-text input is screened for abuse/threats before it reaches Gemini.
-- PII (email addresses, phone numbers) is redacted from user input.
-- Requests about a non-Samsung phone (e.g. "I want an iPhone") are refused with "we only cover Samsung Galaxy phones," rather than guessing an answer.
-- Gemini's response is checked before being shown to the user — it must cite real specs, and it must never leak the app's internal ranking scores to the customer.
+The static site has Vercel serverless functions at `api/parse.js` and
+`api/explain.js`. The free-text description is interpreted by Gemini, and the
+selected catalogue model is explained with grounded specifications. The Gemini
+key stays server-side. In Vercel project settings, add
+`GEMINI_API_KEY` as an environment variable for Preview and Production, then
+deploy from the repository root:
 
-## Approaches we considered and rejected
+```bash
+npx vercel deploy
+npx vercel deploy --prod
+```
 
-| Approach | Why not |
-|---|---|
-| **Fine-tuning** | 20 rows is nowhere near enough training data, and the actual gap was missing knowledge, not wrong behavior — the wrong tool for the job. |
-| **Vector database** | Nothing in the dataset is long-form enough to embed — a spreadsheet filtered by a rule already functions as a knowledge base. |
-| **Autonomous agent** | The decision logic is fixed (filter by budget, then rank); there's no judgment call left for an agent to make. |
+The site still shows its local explanation template if the key is missing or
+Gemini is temporarily unavailable. Do not put `GEMINI_API_KEY` in `web/` or in
+client-side JavaScript.
 
-## Challenges and fixes
+**Optional second provider — Groq.** Gemini's free tier is 20 requests/day
+per model; Groq's is 14,400/day on `llama-3.1-8b-instant`, useful if you want
+headroom for a live demo without watching the quota. Add `GROQ_API_KEY` as a
+Vercel environment variable and redeploy — `api/providers.js` routes both
+functions through Groq automatically when that key is present, with no other
+change needed. To go back to Gemini, remove `GROQ_API_KEY` and redeploy; env
+var changes only take effect on a new deployment. Same key stays server-side
+rule applies: never in `web/`, never in client-side JavaScript.
 
-**Problem:** The prompt handed Gemini a phone's name and five bare scores while instructing it to "mention the phone's features" and "never invent specifications" — an instruction pair it couldn't satisfy at once.
-**Fix:** Retrieve and inject the phone's real specs into the prompt before generation.
+### Run the notebook app
 
-**Problem:** The Gemini free tier allows 20 requests per day, per model — not per minute. A live outage initially looked like a bug.
-**Fix:** Diagnosed the outage from actual server logs (real 429 quota errors, not a code bug), then addressed the underlying waste — the site now caches repeat answers and stops retrying for a few minutes once it detects the day's quota is used up.
+1. Install [Anaconda](https://www.anaconda.com/download), then:
 
-**Problem:** A user typing a competitor phone name still got a random Samsung recommendation, because nothing checked what was actually being asked.
-**Fix:** Added an explicit refusal check, verified by an automated test.
+```bash
+conda env create -f environment.yml
+conda activate galaxymatch
+pip install google-genai
+```
 
-## Testing
+2. Create a `.env` file in the repo root (never commit it):
 
-17 pytest tests cover the recommendation logic and guardrails, including the competitor-phone refusal case.
+```
+GEMINI_API_KEY=your-key-here
+```
+
+Get a key from [Google AI Studio](https://aistudio.google.com/). Note:
+`src/llm_client.py` currently *requires* this key to import — without a
+`.env` the notebook will not start. AI calls fail gracefully at runtime
+(rule-based fallbacks take over), so a placeholder key is enough to run
+without live Gemini.
+
+3. Regenerate the processed data and launch:
+
+```bash
+python -m src.data_pipeline
+jupyter lab   # open notebooks/GalaxyMatch_AI.ipynb, Run All
+```
+
+### Tests
+
+```bash
+pytest tests/
+```
+
+## Team
+
+| Member | Area |
+|--------|------|
+| Member 1 | Dataset + cleaning (`data/phones.csv`, EDA) |
+| Member 2 | Recommendation engine (`src/recommender.py`, tests) |
+| Member 3 | UI — notebook widgets + the `web/` site |
+| Member 4 | AI features (`src/llm_client.py`, `src/prompts.py`) + presentation |
+
+Work happens on the `member3-ui` branch; `main` is merged via PR.
+
+---
+*GalaxyMatch AI is a student capstone project, not an official Samsung product.*

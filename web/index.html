@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GalaxyMatch AI — Find Your Perfect Galaxy</title>
+<link rel="stylesheet" href="home.css" />
+</head>
+<!-- Hero-only landing: exactly one viewport, nothing below it, no scroll.
+     The persona picker lives on personas.html. -->
+<body class="page-hero-only">
+
+<!-- ============ BLACK HERO BLOCK ============ -->
+<header class="hero-block">
+  <!-- Smooth animated veil with noise disabled to avoid the flash/flicker effect. -->
+  <canvas id="darkveil" data-speed="0.35" data-noise="0"></canvas>
+  <div class="hero-inner">
+
+    <nav class="nav">
+      <a class="nav-logo" href="index.html"><img src="assets/samsung_logo.png"
+        alt="Samsung" onerror="this.remove()" /><span>SAMSUNG</span></a>
+      <div class="nav-links">
+        <a href="personas.html">Personas</a>
+        <a href="personas.html#describe">Describe Yourself</a>
+      </div>
+      <a class="nav-cta" href="personas.html">Get Started</a>
+    </nav>
+
+    <div class="hero-head">
+      <h1>Your Galaxy. AI-Forged. Predestined.</h1>
+    </div>
+
+    <div class="hero-cta-row">
+      <a class="btn-pill specular-btn" href="personas.html"
+         data-line-color="#ffffff" data-base-color="#6a6d74" data-proximity="300">Find My Galaxy</a>
+    </div>
+
+    <section class="hero-guide" aria-label="How GalaxyMatch works">
+      <p class="hero-guide-kicker">How GalaxyMatch works</p>
+      <div class="hw-cards">
+        <div class="hw-card">
+          <div class="hw-head">
+            <span class="hw-num">01</span>
+            <span class="hw-title">Choose a persona</span>
+          </div>
+          <div class="hw-row">
+            <span class="hw-icon" aria-hidden="true">&#128100;</span>
+            <span class="hw-row-text">Pick a persona that matches your lifestyle</span>
+          </div>
+          <div class="hw-or"><span>OR</span></div>
+          <div class="hw-row">
+            <span class="hw-icon" aria-hidden="true">&#10022;</span>
+            <span class="hw-row-text">Describe your needs in your own words</span>
+          </div>
+        </div>
+
+        <div class="hw-connector" aria-hidden="true"><span>&#8594;</span></div>
+
+        <div class="hw-card">
+          <div class="hw-head">
+            <span class="hw-num">02</span>
+            <span class="hw-title">AI analyzes</span>
+          </div>
+          <div class="hw-bar-row">
+            <span class="hw-icon" aria-hidden="true">&#127919;</span>
+            <span class="hw-bar-label">Understanding your needs</span>
+          </div>
+          <div class="hw-bar"><i style="--w:88%"></i></div>
+          <div class="hw-bar-row">
+            <span class="hw-icon" aria-hidden="true">&#9776;</span>
+            <span class="hw-bar-label">Matching Galaxy specs</span>
+          </div>
+          <div class="hw-bar"><i style="--w:95%"></i></div>
+          <div class="hw-bar-row">
+            <span class="hw-icon" aria-hidden="true">&#10022;</span>
+            <span class="hw-bar-label">Ranking the best options</span>
+          </div>
+          <div class="hw-bar"><i style="--w:90%"></i></div>
+        </div>
+
+        <div class="hw-connector" aria-hidden="true"><span>&#8594;</span></div>
+
+        <div class="hw-card">
+          <div class="hw-head">
+            <span class="hw-num">03</span>
+            <span class="hw-title">Get your Galaxy</span>
+          </div>
+          <div class="hw-phones">
+            <div class="hw-phone-chip" title="Galaxy S26 Ultra">
+              <img class="hw-phone-visual hw-phone-photo" src="assets/phones/galaxy_s26_ultra.png"
+                   alt="Galaxy S26 Ultra" loading="lazy" decoding="async"
+                   onerror="this.outerHTML='&lt;span class=&quot;hw-phone-visual hw-phone-a&quot;&gt;&lt;/span&gt;'">
+              <small>Top match</small>
+            </div>
+            <div class="hw-phone-chip" title="Galaxy M55 5G">
+              <img class="hw-phone-visual hw-phone-photo" src="assets/phones/galaxy_m55_5g.png"
+                   alt="Galaxy M55 5G" loading="lazy" decoding="async"
+                   onerror="this.outerHTML='&lt;span class=&quot;hw-phone-visual hw-phone-b&quot;&gt;&lt;/span&gt;'">
+              <small>Great value</small>
+            </div>
+            <div class="hw-phone-chip" title="Galaxy M16 5G">
+              <span class="hw-phone-visual hw-phone-c"></span>
+              <small>Budget pick</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="hero-powered">AI-Powered · Grounded in Real Galaxy Specifications</p>
+    </section>
+
+  </div>
+
+  <div class="hero-foot" id="how">
+    Every recommendation is scored across camera, performance, battery, display and value — openly, so you can see exactly why a phone ranks where it does. <a id="foot-more" href="personas.html">Learn more</a>
+  </div>
+</header>
+
+<!-- No Lenis here: the page is exactly one viewport and does not scroll. -->
+<script src="darkveil.js"></script>
+<script src="specular.js"></script>
+<script src="home.js"></script>
+</body>
+</html>
