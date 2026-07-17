@@ -331,10 +331,11 @@ a.nav-cta { display: inline-flex; align-items: center; }
 .describe-feedback {
   display: flex; align-items: flex-start; gap: 10px;
   margin: 14px 8px 0; padding: 13px 18px;
-  background: #fff8ec; border: 1px solid #f3d9a4; border-radius: 12px;
-  color: #7a5c1e; font-size: 15px; font-weight: 500; line-height: 1.5;
+  /* Neutral default appearance: no warning colours */
+  background: transparent; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px;
+  color: var(--ink); font-size: 15px; font-weight: 500; line-height: 1.5;
 }
-.describe-feedback::before { content: "⚠"; flex: none; font-size: 16px; line-height: 1.5; }
+.describe-feedback::before { content: "⚠"; flex: none; font-size: 16px; line-height: 1.5; color: var(--ink); opacity: 0.65; }
 @media (max-width: 560px) { .describe-row { flex-direction: column; } }
 
 /* Ensure the HTML `[hidden]` attribute always hides elements, even when
