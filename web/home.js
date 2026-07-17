@@ -79,4 +79,15 @@ if (input) {
   };
   button.addEventListener("click", go);
   input.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+
+  // Hitting the browser Back button after a successful search restores this
+  // page from bfcache exactly as it was left -- button mid-"Finding...",
+  // disabled -- with no new page load to re-run this script. Reset it so
+  // Back doesn't permanently strand the search box.
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      button.disabled = false;
+      button.textContent = "Find my Galaxy";
+    }
+  });
 }
