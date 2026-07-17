@@ -339,21 +339,20 @@ a.nav-cta { display: inline-flex; align-items: center; }
 .describe-row button:hover { background: #2c2e34; }
 .describe-row button:disabled { cursor: wait; opacity: 0.65; }
 /* Only ever visible when JS has an actual message to show -- [hidden] below
-   keeps it out of the page entirely until then. Neutral by default; the tone
-   classes carry the colour, so an informational note never looks like an
-   error and an error never looks routine. */
+   keeps it out of the page entirely until then. Amber is the default (an
+   unknown model or off-topic ask is a notice); red is reserved for abuse
+   warnings and the 24h restriction, so misconduct never looks routine and a
+   routine notice never looks like a telling-off. */
 .describe-feedback {
   display: flex; align-items: flex-start; gap: 10px;
   margin: 14px 8px 0; padding: 13px 18px;
-  background: transparent; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px;
-  color: var(--ink); font-size: 15px; font-weight: 500; line-height: 1.5;
+  background: #fff8ec; border: 1px solid #f3d9a4; border-radius: 12px;
+  color: #7a5c1e; font-size: 15px; font-weight: 500; line-height: 1.5;
 }
-.describe-feedback::before { content: "ℹ"; flex: none; font-size: 16px; line-height: 1.5; opacity: 0.65; }
-/* Abuse warnings and the 24h restriction: red, and it should read as red. */
+.describe-feedback::before { content: "⚠"; flex: none; font-size: 16px; line-height: 1.5; }
 .describe-feedback.tone-error {
   background: #fdf2f2; border-color: #f0c2c2; color: #a12a2a;
 }
-.describe-feedback.tone-error::before { content: "⚠"; opacity: 1; }
 @media (max-width: 560px) { .describe-row { flex-direction: column; } }
 
 /* Ensure the HTML `[hidden]` attribute always hides elements, even when
