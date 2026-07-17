@@ -141,10 +141,21 @@ async function ask(question) {
       return;
     }
 
-    // reply:null — layer 4 rejected the answer, no key, or the provider
-    // failed. Say so plainly rather than showing something unverified.
+    // A transient per-minute rate limit is NOT a reason to open the circuit
+    // breaker: that's a 5-minute cooldown shared with /api/explain, so it
+    // would darken the results page too, for a limit that clears in seconds.
+    // Say "busy", leave the breaker alone.
+    if (data && data.source === "rate-limited") {
+      addBubble("bot", "I'm getting a lot of questions at once — give me a few seconds and ask again.");
+      return;
+    }
+
+    // reply:null otherwise: layer 4 caught an ungrounded answer, or something
+    // genuinely failed. Only the latter should count toward the breaker.
     AIGuard.noteResult(false);
-    addBubble("bot", "I couldn't answer that from our catalogue data. Try asking about a budget, camera, gaming, battery, display or value.");
+    addBubble("bot", data && data.source === "validation-fallback"
+      ? "I couldn't answer that from our catalogue data. Try asking about a budget, camera, gaming, battery, display or value."
+      : "I couldn't answer that just now. Please try again in a moment.");
   } catch (_) {
     typing.remove();
     AIGuard.noteResult(false);
