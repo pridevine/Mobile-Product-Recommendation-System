@@ -120,6 +120,9 @@ function recRow(rank, p) {
         <span class="rec-name">${p.model_name}</span>
         <span class="rec-seg">${segShort(p.target_segment)}</span>
         <span class="rec-pct">${p.match_pct}%</span>
+        <a class="rec-shop" href="${phoneShopUrl(p)}" target="_blank" rel="noopener noreferrer"
+           aria-label="View ${p.model_name} on Samsung.com" title="View on Samsung.com"
+           onclick="event.stopPropagation()">🛍</a>
       </div>
       <div class="rec-meta">
         <span><b>${inr(p.price_inr)}</b></span>
@@ -136,6 +139,9 @@ function recRow(rank, p) {
 
 function deckCard(rank, p) {
   return `<div class="cs-card" data-rank="${rank}">
+    <a class="csc-shop" href="${phoneShopUrl(p)}" target="_blank" rel="noopener noreferrer"
+       aria-label="View ${p.model_name} on Samsung.com" title="View on Samsung.com"
+       onclick="event.stopPropagation()">🛍</a>
     <div class="csc-photo">${phoneVisual(p)}</div>
     <div class="csc-body">
       <h3 class="csc-name">${p.model_name}</h3>

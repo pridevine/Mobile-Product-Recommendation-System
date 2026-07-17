@@ -306,6 +306,20 @@ function segShort(seg) {
 function segClass(rank, seg) { return rank === 0 ? "best" : segKey(seg); }
 function segLabel(rank, seg) { return rank === 0 ? "Best Match" : segShort(seg); }
 
+// Verified live on samsung.com/in (2026-07-17) -- real product pages, not
+// guessed slugs. Only a sample of the catalogue has one; every other model
+// falls back to Samsung's own search page for that name, which always
+// resolves to a real Samsung page without us guessing a URL that could 404.
+const OFFICIAL_LINKS = {
+  "Galaxy S26 Ultra": "https://www.samsung.com/in/smartphones/galaxy-s26-ultra/buy/",
+  "Galaxy Z Fold7": "https://www.samsung.com/in/smartphones/galaxy-z-fold7/buy/",
+  "Galaxy A56 5G": "https://www.samsung.com/in/smartphones/galaxy-a56/buy/",
+  "Galaxy M55 5G": "https://www.samsung.com/in/smartphones/galaxy-m/galaxy-m55-5g-black-256gb-sm-m556bzkdins/",
+};
+function phoneShopUrl(p) {
+  return OFFICIAL_LINKS[p.model_name] || `https://www.samsung.com/in/search/?searchvalue=${encodeURIComponent(p.model_name)}`;
+}
+
 // Real photo if present in assets/phones/<slug>.png, else the drawn SVG.
 // Uses <img onerror> so no server-side check is needed on a static site.
 function phoneSlug(model) {
