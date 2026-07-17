@@ -39,6 +39,24 @@ GROUNDED_CFG = types.GenerateContentConfig(
     # 60 words; this is only a runaway guard, so keep it well clear.
     max_output_tokens=2048,
     seed=7,
+    safety_settings=[
+        types.SafetySetting(
+            category="HARM_CATEGORY_HARASSMENT",
+            threshold="BLOCK_LOW_AND_ABOVE",
+        ),
+        types.SafetySetting(
+            category="HARM_CATEGORY_HATE_SPEECH",
+            threshold="BLOCK_LOW_AND_ABOVE",
+        ),
+        types.SafetySetting(
+            category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold="BLOCK_LOW_AND_ABOVE",
+        ),
+        types.SafetySetting(
+            category="HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold="BLOCK_LOW_AND_ABOVE",
+        ),
+    ],
 )
 
 # Guards user-initiated bursts (Find / Refine), not the per-card render loop:
@@ -121,11 +139,12 @@ def generate_explanation_llm(
         phone_context=rag.build_phone_context(phone_row),
     )
 
-    return llm_client.call_llm(
+    explanation = llm_client.call_llm(
         prompt,
         expect_json=False,
         config=GROUNDED_CFG,
     )
+    return explanation if security.validate_grounded_output(explanation, phone_row) else None
 
 
 # ---------------------------------------------------------
@@ -264,7 +283,3 @@ def generate_recommendation_summary(weights, top_phones):
         f"{top_phones[1]['model_name']} is an excellent alternative, while "
         f"{top_phones[2]['model_name']} offers another balanced Samsung option."
     )
-
-
-
-    

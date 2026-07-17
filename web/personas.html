@@ -16,11 +16,8 @@
       <a class="nav-logo" href="index.html"><img src="assets/samsung_logo.png"
         alt="Samsung" onerror="this.remove()" /><span>SAMSUNG</span></a>
       <div class="nav-links">
-        <a href="index.html">Home</a>
         <a href="#personas">Personas</a>
         <a href="#describe">Describe Yourself</a>
-        <a href="results.html?persona=riya">Sample Results</a>
-        <a href="https://github.com/pridevine/Mobile-Product-Recommendation-System" target="_blank" rel="noopener">GitHub</a>
       </div>
       <a class="nav-cta" href="index.html">← Back</a>
     </nav>
@@ -37,29 +34,29 @@
   <!-- Ids, names, budgets mirror src/personas.py. Keep them in sync with
        engine.js or the site and the notebook disagree about the same shopper. -->
   <div class="p-cards">
-    <button class="p-card" data-persona="riya">
-      <span class="p-tag">Creator</span>
-      <h3>Riya Sharma</h3>
-      <p>Travel content creator, 26. Shoots photos and Instagram reels — camera quality and dependable battery come first.</p>
-      <span class="p-foot"><span class="p-budget">₹45k – ₹70k</span><span class="p-go">Find matches</span></span>
+    <button class="p-card" data-persona="mukesh">
+      <span class="p-tag">Everyday</span>
+      <h3>Mukesh Patel</h3>
+      <p>Grocery store owner, 47. WhatsApp Business, UPI, video calls — wants maximum value and long battery life.</p>
+      <span class="p-foot"><span class="p-budget">₹15k – ₹23k</span><span class="p-go">Find matches</span></span>
     </button>
     <button class="p-card" data-persona="kabir">
       <span class="p-tag">Gamer</span>
       <h3>Kabir Mehta</h3>
       <p>CS student, 22. Plays BGMI and COD Mobile, and multitasks between studies and entertainment.</p>
-      <span class="p-foot"><span class="p-budget">₹22k – ₹38k</span><span class="p-go">Find matches</span></span>
+      <span class="p-foot"><span class="p-budget">₹25k – ₹38k</span><span class="p-go">Find matches</span></span>
+    </button>
+    <button class="p-card" data-persona="riya">
+      <span class="p-tag">Creator</span>
+      <h3>Riya Sharma</h3>
+      <p>Travel content creator, 26. Shoots photos and Instagram reels — camera quality and dependable battery come first.</p>
+      <span class="p-foot"><span class="p-budget">₹38k – ₹47k</span><span class="p-go">Find matches</span></span>
     </button>
     <button class="p-card" data-persona="ananya">
       <span class="p-tag">Professional</span>
       <h3>Ananya Rao</h3>
       <p>Management consultant, 31. Travels for client meetings — needs all-day battery and smooth multitasking.</p>
-      <span class="p-foot"><span class="p-budget">₹55k – ₹95k</span><span class="p-go">Find matches</span></span>
-    </button>
-    <button class="p-card" data-persona="mukesh">
-      <span class="p-tag">Everyday</span>
-      <h3>Mukesh Patel</h3>
-      <p>Grocery store owner, 47. WhatsApp Business, UPI, video calls — wants maximum value and long battery life.</p>
-      <span class="p-foot"><span class="p-budget">₹12k – ₹22k</span><span class="p-go">Find matches</span></span>
+      <span class="p-foot"><span class="p-budget">₹87k – ₹1.75L</span><span class="p-go">Find matches</span></span>
     </button>
   </div>
 </section>
@@ -72,6 +69,7 @@
     <button id="describe-go" class="specular-btn"
       data-line-color="#ffffff" data-base-color="#4a4d54" data-proximity="260">Find my Galaxy</button>
   </div>
+  <p id="describe-feedback" class="describe-feedback" role="status" aria-live="polite" hidden></p>
 </section>
 
 <p class="disclaimer">GalaxyMatch AI — a student capstone project, not an official Samsung product.</p>

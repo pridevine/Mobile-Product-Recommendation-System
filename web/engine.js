@@ -6,18 +6,18 @@
 // and weights must match, or the site and the notebook rank the same shopper
 // differently and neither is wrong-looking enough to notice.
 const PERSONAS = {
-  riya: { name: "Riya Sharma", need: "Travel content creator — photos and Instagram reels",
-    budget_min: 45000, budget_max: 70000,
-    weights: { camera: 0.40, performance: 0.08, battery: 0.16, display: 0.20, value: 0.16 } },
-  kabir: { name: "Kabir Mehta", need: "CS student and mobile gamer — BGMI, COD Mobile",
-    budget_min: 22000, budget_max: 38000,
-    weights: { camera: 0.08, performance: 0.40, battery: 0.24, display: 0.20, value: 0.08 } },
-  ananya: { name: "Ananya Rao", need: "Management consultant who travels for client meetings",
-    budget_min: 55000, budget_max: 95000,
-    weights: { camera: 0.16, performance: 0.16, battery: 0.32, display: 0.20, value: 0.16 } },
   mukesh: { name: "Mukesh Patel", need: "Grocery store owner — WhatsApp Business, UPI, video calls",
-    budget_min: 12000, budget_max: 22000,
+    budget_min: 15000, budget_max: 23000,
     weights: { camera: 0.09, performance: 0.09, battery: 0.27, display: 0.10, value: 0.45 } },
+  kabir: { name: "Kabir Mehta", need: "CS student and mobile gamer — BGMI, COD Mobile",
+    budget_min: 25000, budget_max: 38000,
+    weights: { camera: 0.08, performance: 0.40, battery: 0.24, display: 0.20, value: 0.08 } },
+  riya: { name: "Riya Sharma", need: "Travel content creator — photos and Instagram reels",
+    budget_min: 38000, budget_max: 47000,
+    weights: { camera: 0.40, performance: 0.08, battery: 0.16, display: 0.20, value: 0.16 } },
+  ananya: { name: "Ananya Rao", need: "Management consultant who travels for client meetings",
+    budget_min: 87000, budget_max: 175000,
+    weights: { camera: 0.16, performance: 0.16, battery: 0.32, display: 0.20, value: 0.16 } },
 };
 
 const DIMENSIONS = ["camera", "performance", "battery", "display", "value"];
@@ -84,8 +84,7 @@ const KEYWORDS = {
 };
 function extractPreferences(text) {
   const t = text.toLowerCase();
-  const budgetMatch = t.match(/(\d{4,6})/);
-  const budget = budgetMatch ? parseInt(budgetMatch[1]) : 40000;
+  const budget = extractBudgetInr(t) || 40000;
   let weights = { camera: 0.15, performance: 0.2, battery: 0.25, display: 0.15, value: 0.25 };
   for (const [dim, re] of Object.entries(KEYWORDS)) {
     if (re.test(t)) {
@@ -93,8 +92,23 @@ function extractPreferences(text) {
       break;
     }
   }
-  return { weights, budget_min: Math.max(1000, Math.round(budget * 0.7)),
+  return { weights, budget_min: Math.max(1000, Math.round(budget * 0.85)),
     budget_max: Math.min(300000, Math.round(budget * 1.15)) };
+}
+
+// Parse Indian budget language before any model is involved. This keeps the
+// offline browser fallback consistent with /api/parse and handles phrases such
+// as "1 lakh", "1.2 lac", "₹1,00,000", and "30k".
+function extractBudgetInr(text) {
+  const value = String(text || "").replace(/,/g, "");
+  const lakh = value.match(/(?:₹|rs\.?|inr\s*)?\s*(\d+(?:\.\d+)?)\s*(?:lakh|lac|l)\b/i);
+  if (lakh) return Math.round(Number(lakh[1]) * 100000);
+  const thousand = value.match(/(?:₹|rs\.?|inr\s*)?\s*(\d+(?:\.\d+)?)\s*(?:k|thousand)\b/i);
+  if (thousand) return Math.round(Number(thousand[1]) * 1000);
+  const currency = value.match(/(?:₹|rs\.?|inr)\s*(\d+(?:\.\d+)?)/i);
+  if (currency) return Math.round(Number(currency[1]));
+  const contextual = value.match(/(?:budget|spend|price|under|upto|up to|maximum|max|around|within)\s*(?:is|of|:)?\s*(?:₹|rs\.?|inr)?\s*(\d{4,7})\b/i);
+  return contextual ? Number(contextual[1]) : null;
 }
 
 // ---------- Badges (ported from src/badges.py) ----------
@@ -248,8 +262,25 @@ function segLabel(rank, seg) { return rank === 0 ? "Best Match" : segShort(seg);
 function phoneSlug(model) {
   return model.toLowerCase().replace(/\+/g, "_plus").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 }
+// Shared product renders keep the catalogue visually consistent without
+// needing a separate image for every model.
+function phoneGroup(model) {
+  const m = (model || "").toLowerCase();
+  if (/galaxy s(?:26|25) ultra/.test(m)) return "premium-ultra";
+  if (/galaxy s(?:26|25|24)(?:\+)?$/.test(m)) return "standard-s";
+  if (/galaxy a(?:57|56|55|54)\b|galaxy [mf](?:56|55)\b/.test(m)) return "a5x";
+  if (/galaxy a(?:37|36|35|34|26|25|24)\b|galaxy [mf]36\b/.test(m)) return "a3x-a2x";
+  if (/galaxy a(?:17|16|15|14)\b|galaxy [mf]16\b/.test(m)) return "budget";
+  if (/galaxy z fold/.test(m)) return "fold";
+  if (/galaxy z flip/.test(m)) return "flip";
+  return null;
+}
+function phoneImageSource(model) {
+  const group = phoneGroup(model);
+  return group ? `assets/phone-groups/${group}.png` : `assets/phones/${phoneSlug(model)}.png`;
+}
 function phoneVisual(p) {
-  return `<img class="phone-photo" src="assets/phones/${phoneSlug(p.model_name)}.png" alt="${p.model_name}"
+  return `<img class="phone-photo" src="${phoneImageSource(p.model_name)}" alt="${p.model_name}"
     data-color="${p.color}" data-family="${p.family}" onerror="phoneImgFallback(this)">`;
 }
 function phoneImgFallback(img) {

@@ -198,7 +198,7 @@ button { font-family: inherit; cursor: pointer; }
   background: var(--band); border-radius: 14px;
 }
 .phone-holder svg { height: 88%; width: auto; max-width: 90%; }
-.phone-holder .phone-photo { max-width: 90%; max-height: 88%; width: auto; height: auto; object-fit: contain; display: block; }
+.phone-holder .phone-photo { max-width: 90%; max-height: 88%; width: auto; height: auto; object-fit: contain; display: block; transform: scaleX(1.08); }
 .hero-photo { width: 100%; height: 100%; object-fit: contain; object-position: right center; display: block; }
 .card-body h3 { font-size: 21px; font-weight: 800; margin: 4px 0 8px; letter-spacing: -0.025em; color: var(--ink); }
 .card-body p { font-size: 14px; color: var(--ink-soft); margin: 0; line-height: 1.55; }

@@ -153,7 +153,7 @@ void main(){
   }
 
   const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (REDUCED) { draw(3.0); return; }
+  if (REDUCED || cfg.speed <= 0) { draw(3.0); return; }
 
   const start = performance.now();
   let raf, running = true;

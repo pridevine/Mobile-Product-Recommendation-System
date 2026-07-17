@@ -15,19 +15,19 @@ from src import llm_client, security
 from src.prompts import PERSONA_PROMPT
 
 PERSONAS = {
-    "riya": {
-        "name": "Riya Sharma",
-        "avatar": "R",
-        "age": 26,
-        "need": "Travel content creator who captures photos and Instagram reels. Prioritizes camera quality and dependable battery life.",
-        "budget_min": 45000,
-        "budget_max": 70000,
+    "mukesh": {
+        "name": "Mukesh Patel",
+        "avatar": "M",
+        "age": 47,
+        "need": "Owns a neighbourhood grocery store. Uses WhatsApp Business, UPI payments, YouTube and video calls. Wants maximum value for money and long battery life.",
+        "budget_min": 15000,
+        "budget_max": 23000,
         "weights": {
-            "camera": 0.40,
-            "performance": 0.08,
-            "battery": 0.16,
-            "display": 0.20,
-            "value": 0.16,
+            "camera": 0.09,
+            "performance": 0.09,
+            "battery": 0.27,
+            "display": 0.10,
+            "value": 0.45,
         },
     },
 
@@ -36,7 +36,7 @@ PERSONAS = {
         "avatar": "K",
         "age": 22,
         "need": "Computer Science student and mobile gaming enthusiast. Plays BGMI, COD Mobile and multitasks between studies and entertainment.",
-        "budget_min": 22000,
+        "budget_min": 25000,
         "budget_max": 38000,
         "weights": {
             "camera": 0.08,
@@ -47,35 +47,35 @@ PERSONAS = {
         },
     },
 
+    "riya": {
+        "name": "Riya Sharma",
+        "avatar": "R",
+        "age": 26,
+        "need": "Travel content creator who captures photos and Instagram reels. Prioritizes camera quality and dependable battery life.",
+        "budget_min": 38000,
+        "budget_max": 47000,
+        "weights": {
+            "camera": 0.40,
+            "performance": 0.08,
+            "battery": 0.16,
+            "display": 0.20,
+            "value": 0.16,
+        },
+    },
+
     "ananya": {
         "name": "Ananya Rao",
         "avatar": "A",
         "age": 31,
         "need": "Management consultant who frequently travels for client meetings. Needs reliable battery life, smooth multitasking and a premium experience.",
-        "budget_min": 55000,
-        "budget_max": 95000,
+        "budget_min": 87000,
+        "budget_max": 175000,
         "weights": {
             "camera": 0.16,
             "performance": 0.16,
             "battery": 0.32,
             "display": 0.20,
             "value": 0.16,
-        },
-    },
-
-    "mukesh": {
-        "name": "Mukesh Patel",
-        "avatar": "M",
-        "age": 47,
-        "need": "Owns a neighbourhood grocery store. Uses WhatsApp Business, UPI payments, YouTube and video calls. Wants maximum value for money and long battery life.",
-        "budget_min": 12000,
-        "budget_max": 22000,
-        "weights": {
-            "camera": 0.09,
-            "performance": 0.09,
-            "battery": 0.27,
-            "display": 0.10,
-            "value": 0.45,
         },
     },
 }
@@ -93,10 +93,9 @@ _rate_limiter = security.RateLimiter()
 
 def _extract_rule_based(description: str) -> dict:
     text = description.lower()
-    budget_match = re.search(r"(\d{4,6})", text)
-    budget = int(budget_match.group(1)) if budget_match else 40000
-    budget_min = security.clamp_budget(budget * 0.7)
-    budget_max = security.clamp_budget(budget * 1.15)
+    budget = security.extract_budget_inr(text) or 40000
+    budget_min = security.clamp_budget(budget * 0.85)
+    budget_max = security.clamp_budget(round(budget * 1.15))
 
     weights = {"camera": 0.15, "performance": 0.2, "battery": 0.25, "display": 0.15, "value": 0.25}
     for dimension, pattern in _KEYWORD_BUCKETS.items():
@@ -109,6 +108,11 @@ def _extract_rule_based(description: str) -> dict:
 
 def call_llm_extract(description: str) -> dict | None:
     """Uses Gemini to extract preferences from natural language."""
+
+    screened = security.screen_user_text(description)
+    if screened["blocked"]:
+        return None
+    description = str(screened["text"])
 
     if not _rate_limiter.allow():
         return None
@@ -161,11 +165,19 @@ def call_llm_extract(description: str) -> dict | None:
 
 
 def extract_preferences_from_text(description: str) -> dict:
-    return call_llm_extract(description) or _extract_rule_based(description)
+    screened = security.screen_user_text(description)
+    if screened["blocked"]:
+        # Keep the notebook flow usable without sending abusive text to either
+        # Gemini or the local parser. The web client shows the friendly
+        # refusal message; this path safely returns neutral defaults.
+        return _extract_rule_based("")
+    safe_description = str(screened["text"])
+    return call_llm_extract(safe_description) or _extract_rule_based(safe_description)
 
 
 def refine_preferences(current_weights: dict, refinement_text: str) -> dict:
-    text = refinement_text.lower()
+    screened = security.screen_user_text(refinement_text)
+    text = str(screened["text"]).lower() if not screened["blocked"] else ""
     new_weights = dict(current_weights)
     for dimension, pattern in _KEYWORD_BUCKETS.items():
         if re.search(pattern, text):

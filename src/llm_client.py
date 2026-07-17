@@ -123,7 +123,7 @@ def call_llm(
         return None
 
     except json.JSONDecodeError as e:
-        _report("JSON parse failed", e, detail=locals().get("text"))
+        _report("JSON parse failed", e)
         return None
 
     except Exception as e:
@@ -132,6 +132,13 @@ def call_llm(
 
 
 def _report(label: str, error: Exception, detail: str | None = None) -> None:
+    # Do not print model output by default: it can contain fragments of user
+    # input. Enable this only for local debugging, never in a public runtime.
+    if os.getenv("GALAXYMATCH_DEBUG_AI") != "1":
+        print(f"Gemini Error [{label}]: {type(error).__name__}")
+        if STRICT:
+            raise error
+        return
     print("=" * 50)
     print(f"Gemini Error [{label}]:")
     print(error)
