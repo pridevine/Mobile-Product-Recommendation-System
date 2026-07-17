@@ -59,6 +59,33 @@ _COMPETITOR_RE = re.compile(
 # instead of quietly recommending an unrelated phone. Adjacency is
 # deliberately tight so this never fires on an ordinary budget mention like
 # "galaxy phone under 30000".
+# Mirrors api/safety.js's UNSUPPORTED_FEATURE_RE. phones.csv has no column
+# for a pop-up camera, headphone jack, SD slot, IP rating and so on, so those
+# asks must return "no data" rather than a confident recommendation. Checked
+# before the keyword pass -- "pop up camera" contains "camera" and would
+# otherwise be scored as a camera request.
+_UNSUPPORTED_FEATURE_RE = re.compile(
+    r"\b(?:pop[\s-]?up|under[\s-]?display|in[\s-]?display|punch[\s-]?hole|periscope|telephoto)\b"
+    r"[\s\w]{0,10}\b(?:camera|selfie|lens|zoom)\b"
+    r"|\boptical\s+zoom\b"
+    r"|\b(?:headphone|audio|3\.5\s?mm)\s*jack\b"
+    r"|\b(?:micro\s?sd|sd\s+card|memory\s+card|expandable\s+storage)\b"
+    r"|\bir\s+blaster\b"
+    r"|\b(?:wireless|reverse)\s+charg(?:ing|er)\b"
+    r"|\b(?:water[\s-]?proof|water[\s-]?resistant|ip6[78])\b"
+    r"|\bgorilla\s+glass\b"
+    r"|\b(?:fingerprint|face\s+unlock|iris\s+scanner)\b"
+    r"|\be[\s-]?sim\b|\bdual\s+sim\b"
+    r"|\b(?:stereo\s+speakers?|dolby)\b"
+    r"|\bsatellite\b",
+    re.IGNORECASE,
+)
+NO_DATA_MESSAGE = (
+    "I don't have specification data for that. Our catalogue covers camera "
+    "megapixels, processor, RAM, storage, battery, display, charging speed and "
+    "price — tell me your budget and which of those matters most, and I'll "
+    "match you to a real Galaxy phone."
+)
 _UNKNOWN_MODEL_RE = re.compile(
     r"\b(?:samsung|galaxy)\s+(?:galaxy\s+)?[a-z]{0,5}-?\s?(\d{3,6})\b"
     r"|\bmodel(?:\s+number)?\s*[:#]?\s*[a-z]{0,5}-?\s?(\d{3,6})\b",
@@ -132,6 +159,8 @@ def screen_user_text(text: str) -> dict[str, str | bool | None]:
         }
     if _ABUSE_RE.search(raw) or _SLUR_RE.search(raw) or _THREAT_RE.search(raw):
         return {"blocked": True, "text": "", "message": SAFE_REDIRECT, "reason": "abuse"}
+    if _UNSUPPORTED_FEATURE_RE.search(raw):
+        return {"blocked": True, "text": "", "message": NO_DATA_MESSAGE, "reason": "no_data"}
     if _UNKNOWN_MODEL_RE.search(raw):
         return {
             "blocked": True,

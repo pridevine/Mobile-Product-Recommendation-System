@@ -47,7 +47,10 @@ function normalizeProfile(value) {
   if (raw.some((weight) => !Number.isFinite(weight) || weight < 0)) return null;
   if (!Number.isFinite(budgetMin) || !Number.isFinite(budgetMax)) return null;
   const total = raw.reduce((sum, weight) => sum + weight, 0);
-  if (total <= 0 || budgetMin <= 0 || budgetMax < budgetMin) return null;
+  // budget_min of 0 is correct for "under 45000" / "below 30k" -- it means no
+  // lower bound, and the clamp below already lifts it to the 1000 floor.
+  // Rejecting it here threw away the whole profile and failed the request.
+  if (total <= 0 || budgetMin < 0 || budgetMax < budgetMin) return null;
   const weights = Object.fromEntries(DIMENSIONS.map((dimension, index) => [dimension, raw[index] / total]));
   return {
     weights,
