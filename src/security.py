@@ -32,6 +32,14 @@ _THREAT_RE = re.compile(
     r"\b(?:kill|hurt|attack|bomb|shoot)\s+(?:you|yourself|me|someone|people)\b",
     re.IGNORECASE,
 )
+# Racial, ethnic, homophobic, and ableist slurs -- checked separately from
+# _ABUSE_RE and always a strike, mirrored identically in api/safety.js and
+# web/engine.js so no input path lets a slur through unscreened.
+_SLUR_RE = re.compile(
+    r"\b(?:n[i1]gg(?:er|a|ers|as)?|f[a4]gg?[o0]t|ch[i1]nk|sp[i1]c|wetback|g[o0]{2}k|"
+    r"k[i1]ke|c[o0]{2}n|r[e3]t[a4]rd(?:ed)?|tr[a4]nny|p[a4]ki)\b",
+    re.IGNORECASE,
+)
 # Mirrors api/safety.js's COMPETITOR_RE. Without this, "recommend me an
 # iPhone" matches none of personas.py's keyword buckets, falls into the
 # default weights, and _extract_rule_based quietly returns a Samsung phone —
@@ -106,7 +114,7 @@ def screen_user_text(text: str) -> dict[str, str | bool | None]:
             "message": "Please keep your description under 1,000 characters so I can process it safely.",
             "reason": "length",
         }
-    if _ABUSE_RE.search(raw) or _THREAT_RE.search(raw):
+    if _ABUSE_RE.search(raw) or _SLUR_RE.search(raw) or _THREAT_RE.search(raw):
         return {"blocked": True, "text": "", "message": SAFE_REDIRECT, "reason": "abuse"}
     if _COMPETITOR_RE.search(raw):
         return {"blocked": True, "text": "", "message": SAFE_REDIRECT, "reason": "competitor"}

@@ -84,6 +84,10 @@ function generateExplanation(weights, p) {
 // the competitor check, since it was added later and never backfilled here.
 const COMPETITOR_RE = /\b(?:iphone|apple|pixel|google pixel|oneplus|xiaomi|redmi|oppo|vivo|realme)\b/i;
 const ABUSE_RE = /\b(?:fuck(?:ing|ed)?|shit(?:ty)?|bitch|asshole|bastard|dumbass|idiot|moron|stupid|dumb|loser|pathetic|jerk|trash|garbage|useless|worthless|suck(?:s|ed)?)\b|\bshut\s+up\b|\bscrew\s+you\b/i;
+// Mirrors api/safety.js's SLUR_RE -- racial, ethnic, homophobic, and ableist
+// slurs, checked separately so they're always a strike no matter what else
+// the message says.
+const SLUR_RE = /\b(?:n[i1]gg(?:er|a|ers|as)?|f[a4]gg?[o0]t|ch[i1]nk|sp[i1]c|wetback|g[o0]{2}k|k[i1]ke|c[o0]{2}n|r[e3]t[a4]rd(?:ed)?|tr[a4]nny|p[a4]ki)\b/i;
 const THREAT_RE = /\b(?:kill|hurt|attack|bomb|shoot)\s+(?:you|yourself|me|someone|people)\b/i;
 const SAMSUNG_ONLY_MESSAGE =
   "We provide recommendations for Samsung Galaxy phones only. Tell me your budget and what matters most — camera, gaming, battery, display, or value.";
@@ -94,7 +98,7 @@ const SAFE_REDIRECT_MESSAGE =
 // as a strike toward AIGuard's warn-then-restrict escalation.
 function screenQuery(text) {
   const raw = String(text || "");
-  if (ABUSE_RE.test(raw) || THREAT_RE.test(raw)) {
+  if (ABUSE_RE.test(raw) || SLUR_RE.test(raw) || THREAT_RE.test(raw)) {
     return { blocked: true, message: SAFE_REDIRECT_MESSAGE, reason: "abuse" };
   }
   if (COMPETITOR_RE.test(raw)) {

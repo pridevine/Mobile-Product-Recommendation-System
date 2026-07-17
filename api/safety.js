@@ -8,6 +8,10 @@ const SAFE_REDIRECT =
 // frustration, while clearly abusive/threatening input is stopped before it
 // reaches the provider. We do not log or echo the matched text.
 const ABUSE_RE = /\b(?:fuck(?:ing|ed)?|shit(?:ty)?|bitch|asshole|bastard|dumbass|idiot|moron|stupid|dumb|loser|pathetic|jerk|trash|garbage|useless|worthless|suck(?:s|ed)?)\b|\bshut\s+up\b|\bscrew\s+you\b/i;
+// Racial, ethnic, homophobic, and ableist slurs -- checked separately from
+// ABUSE_RE and always a strike (never just logged/softened), regardless of
+// what the rest of the message says.
+const SLUR_RE = /\b(?:n[i1]gg(?:er|a|ers|as)?|f[a4]gg?[o0]t|ch[i1]nk|sp[i1]c|wetback|g[o0]{2}k|k[i1]ke|c[o0]{2}n|r[e3]t[a4]rd(?:ed)?|tr[a4]nny|p[a4]ki)\b/i;
 const THREAT_RE = /\b(?:kill|hurt|attack|bomb|shoot)\s+(?:you|yourself|me|someone|people)\b/i;
 
 const COMPETITOR_RE = /\b(?:iphone|apple|pixel|google pixel|oneplus|xiaomi|redmi|oppo|vivo|realme)\b/i;
@@ -49,7 +53,7 @@ function screenUserText(value) {
       reason: "length",
     };
   }
-  if (ABUSE_RE.test(raw) || THREAT_RE.test(raw)) {
+  if (ABUSE_RE.test(raw) || SLUR_RE.test(raw) || THREAT_RE.test(raw)) {
     return { blocked: true, text: "", message: SAFE_REDIRECT, reason: "abuse" };
   }
   // Block before the Gemini call, not after: without this, "recommend me an

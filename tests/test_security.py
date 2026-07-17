@@ -31,6 +31,21 @@ def test_screen_user_text_catches_mild_insults_not_just_slurs():
         assert result["reason"] == "abuse", text
 
 
+def test_screen_user_text_blocks_slurs_before_they_ever_reach_the_recommender():
+    # Regression: a racial slur previously matched none of _ABUSE_RE/_THREAT_RE,
+    # so it sailed through screening and the query still returned a normal
+    # phone match instead of being refused.
+    for text in ["you're such a n1gga", "stop being a retard", "that's so paki"]:
+        result = security.screen_user_text(text)
+        assert result["blocked"] is True, text
+        assert result["reason"] == "abuse", text
+    # Words that merely contain a slur's letters as a substring must not
+    # false-positive (word-boundary check).
+    for text in ["I'm from Pakistan", "a raccoon crossed the road"]:
+        result = security.screen_user_text(text)
+        assert result["blocked"] is False, text
+
+
 def test_screen_user_text_reason_distinguishes_abuse_from_other_blocks():
     # Callers use `reason` to decide whether a block counts as a strike
     # toward the 24h abuse ban -- only "abuse" should ever count. Getting
