@@ -329,8 +329,12 @@ a.nav-cta { display: inline-flex; align-items: center; }
 .describe-row button:hover { background: #2c2e34; }
 .describe-row button:disabled { cursor: wait; opacity: 0.65; }
 .describe-feedback {
-  margin: 12px 8px 0; color: #5d626c; font-size: 13px; line-height: 1.5;
+  display: flex; align-items: flex-start; gap: 10px;
+  margin: 14px 8px 0; padding: 13px 18px;
+  background: #fff8ec; border: 1px solid #f3d9a4; border-radius: 12px;
+  color: #7a5c1e; font-size: 15px; font-weight: 500; line-height: 1.5;
 }
+.describe-feedback::before { content: "⚠"; flex: none; font-size: 16px; line-height: 1.5; }
 @media (max-width: 560px) { .describe-row { flex-direction: column; } }
 
 .disclaimer { text-align: center; color: #a3a7ae; font-size: 12px; padding: 0 20px 34px; }
