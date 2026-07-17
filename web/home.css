@@ -153,7 +153,7 @@ a.nav-cta { display: inline-flex; align-items: center; }
 }
 .hero-guide-copy {
   max-width: 560px;
-  margin: 0 auto 28px;
+  margin: 0 auto 18px;
   color: rgba(255,255,255,0.68);
   font-size: clamp(14px, 1.35vw, 17px);
   line-height: 1.55;
@@ -171,8 +171,8 @@ a.nav-cta { display: inline-flex; align-items: center; }
   justify-content: center;
   flex-direction: column;
   gap: 4px;
-  min-height: 94px;
-  padding: 16px 22px;
+  min-height: 84px;
+  padding: 12px 22px;
   color: rgba(255,255,255,0.9);
   font-size: 13px;
   text-align: left;
@@ -189,6 +189,42 @@ a.nav-cta { display: inline-flex; align-items: center; }
   color: rgba(255,255,255,0.46);
   font-size: 11px;
 }
+
+/* Small decorative mockups per step — kept short on purpose: .hero-signal
+   sits inside the one-viewport hero (.page-hero-only), so a few px per
+   column is the whole budget. aria-hidden since the label text above each
+   one already carries the real meaning. */
+.hs-mock { margin-top: 2px; width: 100%; }
+
+.hs-mock-input {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px; padding: 7px 12px;
+}
+.hs-mock-dot { flex: none; width: 5px; height: 5px; border-radius: 50%; background: #7c9bff; }
+.hs-mock-text {
+  font-size: 10.5px; color: rgba(255,255,255,0.55);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.hs-mock-bars { display: flex; flex-direction: column; gap: 5px; }
+.hs-mock-bars i {
+  display: block; height: 3px; border-radius: 999px;
+  background: rgba(255,255,255,0.12); position: relative; overflow: hidden;
+}
+.hs-mock-bars i::after {
+  content: ""; position: absolute; inset: 0; width: var(--w, 60%);
+  border-radius: inherit; background: linear-gradient(90deg, #5b7fff, #9db4ff);
+}
+
+.hs-mock-phones { display: flex; align-items: flex-end; gap: 6px; }
+.hs-phone {
+  display: block; width: 14px; height: 24px; border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.22);
+}
+.hs-phone-a { background: linear-gradient(180deg, #3a3d46, #202226); height: 26px; }
+.hs-phone-b { background: linear-gradient(180deg, #2f3a52, #1b2233); }
+.hs-phone-c { background: linear-gradient(180deg, #33302a, #201e1a); height: 20px; align-self: flex-end; }
 .hero-powered {
   margin: 16px 0 0;
   color: rgba(255,255,255,0.38);
