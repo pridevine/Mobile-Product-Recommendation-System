@@ -30,6 +30,14 @@ _THREAT_RE = re.compile(
     r"\b(?:kill|hurt|attack|bomb|shoot)\s+(?:you|yourself|me|someone|people)\b",
     re.IGNORECASE,
 )
+# Mirrors api/safety.js's COMPETITOR_RE. Without this, "recommend me an
+# iPhone" matches none of personas.py's keyword buckets, falls into the
+# default weights, and _extract_rule_based quietly returns a Samsung phone —
+# reading as a random answer to an off-topic request rather than a refusal.
+_COMPETITOR_RE = re.compile(
+    r"\b(?:iphone|apple|pixel|google pixel|oneplus|xiaomi|redmi|oppo|vivo|realme)\b",
+    re.IGNORECASE,
+)
 
 
 def get_secret(name: str) -> str | None:
@@ -90,7 +98,7 @@ def screen_user_text(text: str) -> dict[str, str | bool]:
             "text": "",
             "message": "Please keep your description under 1,000 characters so I can process it safely.",
         }
-    if _ABUSE_RE.search(raw) or _THREAT_RE.search(raw):
+    if _ABUSE_RE.search(raw) or _THREAT_RE.search(raw) or _COMPETITOR_RE.search(raw):
         return {"blocked": True, "text": "", "message": SAFE_REDIRECT}
     return {"blocked": False, "text": redact_pii(raw), "message": ""}
 

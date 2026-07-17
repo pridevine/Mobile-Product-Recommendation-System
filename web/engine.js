@@ -75,6 +75,22 @@ function generateExplanation(weights, p) {
 }
 
 // ---------- Free-text extraction (ported from src/personas.py) ----------
+// Mirrors api/safety.js's COMPETITOR_RE. This is a client-only, no-network
+// path (used when /api/parse was skipped or failed), so it needs its own
+// screen: without it, "recommend me an iPhone" matches no KEYWORDS below,
+// falls into the default weights, and quietly returns a Samsung phone as if
+// the input had been understood — which reads as a random, unrelated answer.
+const COMPETITOR_RE = /\b(?:iphone|apple|pixel|google pixel|oneplus|xiaomi|redmi|oppo|vivo|realme)\b/i;
+const SAMSUNG_ONLY_MESSAGE =
+  "We provide recommendations for Samsung Galaxy phones only. Tell me your budget and what matters most — camera, gaming, battery, display, or value.";
+
+function screenQuery(text) {
+  if (COMPETITOR_RE.test(String(text || ""))) {
+    return { blocked: true, message: SAMSUNG_ONLY_MESSAGE };
+  }
+  return { blocked: false, message: "" };
+}
+
 const KEYWORDS = {
   performance: /bgmi|pubg|gam(e|ing)|fps|fortnite/,
   camera: /camera|photo|wedding|shoot|photograph/,

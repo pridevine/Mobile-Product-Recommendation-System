@@ -20,7 +20,15 @@ function readParams() {
         prefs = { weights: profile.weights, budget_min: profile.budget_min, budget_max: profile.budget_max };
       }
     } catch (_) { /* malformed profile falls back to local extraction */ }
-    prefs = prefs || extractPreferences(q);
+    // Only screen here when falling back to the local extractor: a `profile`
+    // already present means /api/parse succeeded and screened it server-side.
+    if (!prefs) {
+      const screened = screenQuery(q);
+      if (screened.blocked) {
+        return { blocked: true, message: screened.message };
+      }
+      prefs = extractPreferences(q);
+    }
     return { weights: prefs.weights, budget: [prefs.budget_min, prefs.budget_max],
       personaId: null, label: "Based on your description" };
   }
@@ -198,7 +206,13 @@ function renderChips() {
 async function boot() {
   await loadPhones();
   state = readParams();
-  renderChips();
+  renderChips(); // leave the persona chips available as a recovery path
+  if (state.blocked) {
+    document.getElementById("matches-sub").textContent = state.message;
+    document.getElementById("rec-list").innerHTML = "";
+    document.getElementById("cs-stage").innerHTML = "";
+    return;
+  }
   paint();
 }
 boot();

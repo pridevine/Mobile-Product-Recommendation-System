@@ -47,6 +47,14 @@ function screenUserText(value) {
   if (ABUSE_RE.test(raw) || THREAT_RE.test(raw)) {
     return { blocked: true, text: "", message: SAFE_REDIRECT };
   }
+  // Block before the Gemini call, not after: without this, "recommend me an
+  // iPhone" reaches the model, which infers weights from whatever it can and
+  // still returns a valid profile -- so the site answers a Samsung-only
+  // catalogue as if the off-topic request had been understood. Blocking here
+  // also means the request never leaves for Gemini at all, saving quota.
+  if (COMPETITOR_RE.test(raw)) {
+    return { blocked: true, text: "", message: SAFE_REDIRECT };
+  }
   return { blocked: false, text: redactPii(raw), message: "" };
 }
 

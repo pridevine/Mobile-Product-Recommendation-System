@@ -21,6 +21,16 @@ def test_screen_user_text_blocks_abuse_without_echoing_it():
     assert result["text"] == ""
 
 
+def test_screen_user_text_blocks_competitor_phones():
+    # Without this, "recommend me an iPhone" matches none of personas.py's
+    # keyword buckets, falls into the default weights, and the app quietly
+    # recommends a Samsung phone as if the request had been understood.
+    for text in ["I want an iPhone 15", "compare with a Pixel 9", "is OnePlus better?"]:
+        result = security.screen_user_text(text)
+        assert result["blocked"] is True, text
+        assert "samsung" in result["message"].lower()
+
+
 def test_screen_user_text_limits_payload_size():
     result = security.screen_user_text("x" * 1001)
     assert result["blocked"] is True
